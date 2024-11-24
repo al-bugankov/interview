@@ -2,7 +2,7 @@
 import {onMounted, ref} from "vue";
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 import {useUserStore} from "@/stores/user";
-import AppHeader from "@/components/AppHeader.vue";
+import AppHeaderMobile from "@/components/AppHeaderMobile.vue";
 
 const userStore = useUserStore()
 const isLoading = ref<boolean>(true);
@@ -21,16 +21,34 @@ onMounted(() => {
 
 <template>
   <app-progress class="flex justify-content-center align-content-center" style="height: 100vh;" v-if="isLoading"/>
-  <div v-else class="container">
-  <AppHeader />
-  <div class="content"><RouterView /></div>
+  <div v-else class="app-container">
+    <div class="header-container">
+  <AppHeaderMobile />
+    </div>
+  <div class="content-container">
+    <RouterView />
+    </div>
   </div>
 </template>
 
 <style scoped>
-.container {
-  max-width: 1280px;
-  margin: auto;
-  padding: 20px;
+.app-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
+.header-container,
+.content-container {
+  width: 100%;
+  max-width: 375px;
+  min-width: 315px;
+  padding-inline: 15px;
+}
+
+.content-container {
+  margin-bottom: 30px;
+}
+
 </style>

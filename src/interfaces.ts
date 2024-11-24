@@ -7,11 +7,12 @@ export interface IInterview {
     contactWhatsApp?: string,
     contactPhone?: string,
     createdAt: Date,
-    salaryFrom?: number
-    salaryTo?: number
-    stages?: IStage[]
-    result?: 'Refusal' | 'Offer' | 'inProgress'
+    salaryFrom?: number | null,
+    salaryTo?: number | null,
+    stages?: IStage[],
+    result?: TResultFilter,
 }
+export type TResultFilter = 'Refusal' | 'Offer' | 'inProgress'
 
 export interface IStage {
     name: string,

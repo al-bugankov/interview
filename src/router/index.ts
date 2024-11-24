@@ -3,7 +3,7 @@ import type {RouteRecordRaw, RouteLocationNormalized, NavigationGuardNext } from
 import {getAuth, onAuthStateChanged} from "firebase/auth";
 
 const checkAuth = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-let isAuth = false
+  let isAuth = false
 
   onAuthStateChanged(getAuth(), (user) => {
     if (user && !isAuth) {
@@ -20,24 +20,24 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/PageHome.vue'),
+    component: () => import('@/views/PageHomeMobile.vue'),
     beforeEnter: checkAuth
   },
   {
     path: '/auth',
     name: 'Auth',
-    component: () => import('@/views/PageAuth.vue')
+    component: () => import('@/views/PageAuthMobile.vue')
   },
   {
     path: '/interview/:id',
     name: 'Interview',
-    component: () => import('@/views/PageInterview.vue'),
+    component: () => import('@/views/PageInterviewMobile.vue'),
     beforeEnter: checkAuth
   },
   {
     path: '/list',
     name: 'List',
-    component: () => import('@/views/PageList.vue'),
+    component: () => import('@/views/PageListMobile.vue'),
     beforeEnter: checkAuth
   },
   {
