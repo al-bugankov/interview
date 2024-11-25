@@ -1,14 +1,13 @@
-<script setup lang="ts">
-import {ref, onMounted} from "vue"
-import {getFirestore, doc, getDoc, updateDoc, Timestamp} from 'firebase/firestore'
-import {useUserStore} from "@/stores/user"
-import type {IInterview, IStage} from '@/interfaces'
-import {useRoute , useRouter } from  "vue-router"
-
-
+<script lang="ts" setup>
+import { onMounted, ref } from 'vue'
+import { doc, getDoc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
+import { useAuthStore } from '@/modules/auth/stores/authStore'
+import type { IInterview, IStage } from '@/interfaces'
+import { useRoute, useRouter } from 'vue-router'
+import { ERouteNames } from '@/router/ERouteNames'
 
 const db = getFirestore()
-const userStore = useUserStore()
+const userStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const isLoading = ref(true)
@@ -20,7 +19,7 @@ const getData = async (): Promise<void> => {
   isLoading.value = true
   const docSnap = await getDoc(docref)
 
-  if(docSnap.exists()) {
+  if (docSnap.exists()) {
     const data = docSnap.data() as IInterview
 
     if (data.stages && data.stages.length) {
@@ -39,18 +38,18 @@ const getData = async (): Promise<void> => {
   isLoading.value = false
 }
 const addStage = () => {
-  if (interview.value)  {
+  if (interview.value) {
     if (!interview.value.stages) {
       interview.value.stages = []
     }
-    interview.value.stages.push({name: '', date: null, description: ''})
+    interview.value.stages.push({ name: '', date: null, description: '' })
   }
 }
 
 const removeStage = (index: number) => {
   if (interview.value) {
     if (interview.value.stages) {
-      interview.value.stages.splice(index,1)
+      interview.value.stages.splice(index, 1)
     }
   }
 }
@@ -65,100 +64,172 @@ const saveInterview = async (): Promise<void> => {
     // Получаем данные после обновления
     await getData()
   } catch (error) {
-    console.error("Ошибка при сохранении:", error)
+    console.error('Ошибка при сохранении:', error)
   } finally {
     isLoading.value = false
 
     // Переходим на страницу /list после выполнения всех асинхронных операций
-    router.push('/list') // Нет необходимости ожидать этого
+    router.push({ name: ERouteNames.INTERVIEW_LIST }) // Нет необходимости ожидать этого
   }
 }
 
 const observeStyles = () => {
   const observer = new MutationObserver(() => {
-    const datePickerPanel = document.querySelector('.p-datepicker-panel');
+    const datePickerPanel = document.querySelector('.p-datepicker-panel')
     if (datePickerPanel) {
-      datePickerPanel.style.setProperty('--p-datepicker-panel-border-radius', '20px');
+      datePickerPanel.style.setProperty('--p-datepicker-panel-border-radius', '20px')
     }
-  });
+  })
 
-  observer.observe(document.body, { childList: true, subtree: true });
-};
+  observer.observe(document.body, { childList: true, subtree: true })
+}
 
 onMounted(async () => {
   // Вызов getData и observeStyles
-  await getData();
-  observeStyles();
-});
+  await getData()
+  observeStyles()
+})
 </script>
 
 <template>
-  <app-progress v-if="isLoading"/>
+  <app-progress v-if="isLoading" />
   <div v-else-if="interview?.id && !isLoading" class="class-interview">
     <app-card>
       <template #title>Собеседование в компанию {{ interview.company }}</template>
       <template #content>
+        <label for="company">Компания</label>
+        <app-input-text id="company" v-model="interview.company" class="input" />
 
-          <label for="company">Компания</label>
-          <app-input-text class="input" id="company" v-model="interview.company"/>
+        <label for="vacancyLink">Описание Вакансии (ссылка)</label>
+        <app-input-text id="vacancyLink" v-model="interview.vacancyLink" class="input" />
 
-          <label for="vacancyLink">Описание Вакансии (ссылка)</label>
-          <app-input-text class="input " id="vacancyLink" v-model="interview.vacancyLink"/>
+        <label for="hrName">Контакт (имя)</label>
+        <app-input-text id="hrName" v-model="interview.hrName" class="input" />
 
-          <label for="hrName">Контакт (имя)</label>
-          <app-input-text class="input" id="hrName" v-model="interview.hrName"/>
+        <label for="contactTelegram">Telegram username HR</label>
+        <app-input-text id="contactTelegram" v-model="interview.contactTelegram" class="input" />
 
-          <label for="contactTelegram">Telegram username HR</label>
-          <app-input-text class="input " id="contactTelegram" v-model="interview.contactTelegram"/>
+        <label for="contactWhatsApp">WhatsApp</label>
+        <app-input-text id="contactWhatsApp" v-model="interview.contactWhatsApp" class="input" />
 
-          <label for="contactWhatsApp">WhatsApp</label>
-          <app-input-text class="input " id="contactWhatsApp" v-model="interview.contactWhatsApp"/>
+        <label for="contactPhone">Телефон HR</label>
+        <app-input-text id="contactPhone" v-model="interview.contactPhone" class="input" />
 
-          <label for="contactPhone">Телефон HR</label>
-          <app-input-text class="input " id="contactPhone" v-model="interview.contactPhone"/>
+        <label for="salaryFrom">Зарплатная вилка от</label>
+        <app-input-number
+          id="salaryFrom"
+          v-model="interview.salaryFrom"
+          class="input"
+          placeholder="Зарплатная вилка от"
+        />
 
+        <label for="salaryTo">Зарплатная вилка до</label>
+        <app-input-number
+          id="salaryTo"
+          v-model="interview.salaryTo"
+          class="input"
+          placeholder="Зарплатная вилка до"
+        />
 
-
-            <label for="salaryFrom">Зарплатная вилка от</label>
-            <app-input-number class="input" v-model="interview.salaryFrom" id="salaryFrom" placeholder="Зарплатная вилка от"/>
-
-            <label for="salaryTo">Зарплатная вилка до</label>
-            <app-input-number class="input" v-model="interview.salaryTo" id="salaryTo" placeholder="Зарплатная вилка до"/>
-
-
-        <app-button label="Добавить этап" severity="info" icon="pi pi-plus" @click="addStage" :style="{'--p-button-info-background': 'var(--inProgress-color)','--p-button-info-active-background': 'var(--inProgress-darken)'}"/>
+        <app-button
+          :style="{
+            '--p-button-info-background': 'var(--inProgress-color)',
+            '--p-button-info-active-background': 'var(--inProgress-darken)'
+          }"
+          icon="pi pi-plus"
+          label="Добавить этап"
+          severity="info"
+          @click="addStage"
+        />
         <template v-if="interview.stages">
           <div v-for="(stage, index) in interview.stages" :key="index" class="interview-stage">
             <div class="datepicker-input-container">
               <label :for="`stage-name-${index}`">Название этапа</label>
-              <app-input-text class="datepicker-input" :id="`stage-name-${index}`" v-model="stage.name"/>
+              <app-input-text
+                :id="`stage-name-${index}`"
+                v-model="stage.name"
+                class="datepicker-input"
+              />
             </div>
             <div class="datepicker-input-container">
               <label :for="`stage-date-${index}`">Дата прохождения этапа</label>
-              <app-calendar v-model="stage.date" panelClass="datepicker-custom" class="datepicker-input" :id="`stage-date-${index}`" dateFormat="dd.mm.yy"/>
+              <app-calendar
+                :id="`stage-date-${index}`"
+                v-model="stage.date"
+                class="datepicker-input"
+                dateFormat="dd.mm.yy"
+                panelClass="datepicker-custom"
+              />
             </div>
             <div class="">
               <label :for="`stage-description-${index}`">Комментарий</label>
-              <app-textarea v-model="stage.description" class="" :id="`stage-description-${index}`" rows="5" :style="{ borderRadius: 'var(--element-radius)', width: '100%', }"/>
+              <app-textarea
+                :id="`stage-description-${index}`"
+                v-model="stage.description"
+                :style="{ borderRadius: 'var(--element-radius)', width: '100%' }"
+                class=""
+                rows="5"
+              />
             </div>
-            <app-button severity="danger" class="delete-button" label="Удалить этап" @click="removeStage"/>
+            <app-button
+              class="delete-button"
+              label="Удалить этап"
+              severity="danger"
+              @click="removeStage"
+            />
           </div>
         </template>
         <div class="radio-container">
           <div class="radio-item refusal">
-            <app-radio id="interviewResult1" :style="{'--p-radiobutton-checked-background': 'var(--refusal-color)', '--p-radiobutton-checked-hover-background': 'var(--refusal-color)', '--p-radiobutton-checked-hover-border-color': 'var(--refusal-color)'}" name="result" value="Refusal" v-model="interview.result"/>
-            <label for="interviewResult1" class="radio-label">Отказ</label>
+            <app-radio
+              id="interviewResult1"
+              v-model="interview.result"
+              :style="{
+                '--p-radiobutton-checked-background': 'var(--refusal-color)',
+                '--p-radiobutton-checked-hover-background': 'var(--refusal-color)',
+                '--p-radiobutton-checked-hover-border-color': 'var(--refusal-color)'
+              }"
+              name="result"
+              value="Refusal"
+            />
+            <label class="radio-label" for="interviewResult1">Отказ</label>
           </div>
           <div class="radio-item offer">
-            <app-radio id="interviewResult2" :style="{'--p-radiobutton-checked-background': 'var(--offer-color)', '--p-radiobutton-checked-hover-background': 'var(--offer-color)', '--p-radiobutton-checked-hover-border-color': 'var(--offer-color)'}" name="result" value="Offer" v-model="interview.result"/>
-            <label for="interviewResult2" class="radio-label">Оффер</label>
+            <app-radio
+              id="interviewResult2"
+              v-model="interview.result"
+              :style="{
+                '--p-radiobutton-checked-background': 'var(--offer-color)',
+                '--p-radiobutton-checked-hover-background': 'var(--offer-color)',
+                '--p-radiobutton-checked-hover-border-color': 'var(--offer-color)'
+              }"
+              name="result"
+              value="Offer"
+            />
+            <label class="radio-label" for="interviewResult2">Оффер</label>
           </div>
           <div class="radio-item inProgress">
-            <app-radio id="interviewResult3" :style="{'--p-radiobutton-checked-background': 'var(--inProgress-color)', '--p-radiobutton-checked-hover-background': 'var(--inProgress-color)', '--p-radiobutton-checked-hover-border-color': 'var(--inProgress-color)'}" name="result" checked value="inProgress" v-model="interview.result"/>
-            <label for="interviewResult3"  class="radio-label">Ожидание</label>
+            <app-radio
+              id="interviewResult3"
+              v-model="interview.result"
+              :style="{
+                '--p-radiobutton-checked-background': 'var(--inProgress-color)',
+                '--p-radiobutton-checked-hover-background': 'var(--inProgress-color)',
+                '--p-radiobutton-checked-hover-border-color': 'var(--inProgress-color)'
+              }"
+              checked
+              name="result"
+              value="inProgress"
+            />
+            <label class="radio-label" for="interviewResult3">Ожидание</label>
           </div>
         </div>
-        <app-button class="save-button" label="Сохранить" icon="pi pi-save" @click="saveInterview"/>
+        <app-button
+          class="save-button"
+          icon="pi pi-save"
+          label="Сохранить"
+          @click="saveInterview"
+        />
       </template>
     </app-card>
   </div>
@@ -169,10 +240,12 @@ onMounted(async () => {
   max-width: 600px;
   margin: auto;
 }
+
 .input {
   width: 100%;
   margin-bottom: 12px;
 }
+
 .interview-stage {
   border: 1px solid #ccc;
   border-radius: 6px;

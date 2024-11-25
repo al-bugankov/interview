@@ -1,51 +1,74 @@
+import type { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
-import type {RouteRecordRaw, RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
-import {getAuth, onAuthStateChanged} from "firebase/auth";
+import { useAuthStore } from '@/modules/auth/stores/authStore'
+import { ERouteNames } from '@/router/ERouteNames'
+import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
-const checkAuth = (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  let isAuth = false
+const checkAuth = async (
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) => {
+  const authStore = useAuthStore()
 
-  onAuthStateChanged(getAuth(), (user) => {
-    if (user && !isAuth) {
-      isAuth = true
-      next()
-    } else if (!user && !isAuth) {
-      isAuth = true
-      next('/auth')
-    }
-  })
+  console.log('checkAuth', authStore.isAuth)
+
+  if (userIdFromStorage()) {
+    onAuthStateChanged(getAuth(), (user) => {
+      if (user) {
+        authStore.isAuth = true
+        authStore.userId = user.uid
+      }
+    })
+    next()
+    return
+  }
+
+  next({ name: ERouteNames.AUTH_LOGIN })
 }
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import('@/views/PageHomeMobile.vue'),
-    beforeEnter: checkAuth
+    name: ERouteNames.MAIN,
+    beforeEnter: checkAuth,
+    redirect: { name: ERouteNames.INTERVIEW_LIST },
+    children: [
+      {
+        path: 'interview/create',
+        name: ERouteNames.INTERVIEW_CREATE,
+        component: () => import('@/views/PageHomeMobile.vue')
+      },
+      {
+        path: 'interview/:id',
+        name: ERouteNames.INTERVIEW_ID,
+        component: () => import('@/views/PageInterviewMobile.vue')
+      },
+      {
+        path: 'list',
+        name: ERouteNames.INTERVIEW_LIST,
+        component: () => import('@/views/PageListMobile.vue')
+      },
+      {
+        path: 'statistic',
+        name: ERouteNames.STATISTIC,
+        component: () => import('@/views/PageStatistic.vue')
+      }
+    ]
   },
   {
     path: '/auth',
-    name: 'Auth',
-    component: () => import('@/views/PageAuthMobile.vue')
-  },
-  {
-    path: '/interview/:id',
-    name: 'Interview',
-    component: () => import('@/views/PageInterviewMobile.vue'),
-    beforeEnter: checkAuth
-  },
-  {
-    path: '/list',
-    name: 'List',
-    component: () => import('@/views/PageListMobile.vue'),
-    beforeEnter: checkAuth
-  },
-  {
-    path: '/statistic',
-    name: 'Statistic',
-    component: () => import('@/views/PageStatistic.vue'),
-    beforeEnter: checkAuth
-  },
+    name: ERouteNames.AUTH,
+    redirect: { name: ERouteNames.AUTH_LOGIN },
+    children: [
+      {
+        path: 'login',
+        name: ERouteNames.AUTH_LOGIN,
+        component: () => import('@/views/AuthLogin.vue')
+      }
+    ]
+  }
 ]
 
 const router = createRouter({

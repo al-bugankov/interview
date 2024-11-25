@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { useInterviewStore } from '@/stores/interviewsStore';
+import { useInterviewStore } from '@/modules/interview/stores/interviewsStore';
 import type { IInterview } from '@/interfaces';
 
 export const useInterviewFilterStore = defineStore('interviewFilter', () => {
