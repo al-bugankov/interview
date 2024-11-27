@@ -193,5 +193,10 @@ const visibleNavigationItems = computed(() =>
   border-radius: var(--element-radius);
 }
 
+::v-deep(.p-menubar-mobile .p-menubar-button) {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  touch-action: manipulation;
+}
 
 </style>

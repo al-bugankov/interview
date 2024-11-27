@@ -115,6 +115,7 @@ const addNewInterview = async (): Promise<void> => {
           class="add-button"
           label="Создать собеседование"
           @click="toggleSubmit"
+          style="--p-button-primary-border-color: transparent;"
         ></app-button>
       </template>
     </app-card>
@@ -184,5 +185,10 @@ const addNewInterview = async (): Promise<void> => {
 
 input.is-invalid {
   border: 1px solid var(--refusal-color);
+}
+
+:root {
+  --p-emerald-500: transparent !important;
+  --p-button-primary-border-color: transparent !important;
 }
 </style>

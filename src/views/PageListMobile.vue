@@ -105,9 +105,8 @@ const clearFilter = async () => {
         <span>Мои собеседования</span>
       </div>
       <router-link :to="{ name: ERouteNames.INTERVIEW_CREATE }">
-        <button class="header-button scale-button" type="button">
+        <button class="add-button" type="button">
           <svg
-            class="scale-svg"
             fill="none"
             height="34"
             viewBox="0 0 34 34"
@@ -198,9 +197,8 @@ const clearFilter = async () => {
             <div class="item-name item-contact">Контакты</div>
             <div class="item-content">
               <span v-if="interview.contactTelegram">
-                <a :href="`https://t.me/${interview.contactTelegram}`" class="scale-button">
+                <a :href="`https://t.me/${interview.contactTelegram}`">
                   <svg
-                    class="scale-svg"
                     fill="none"
                     height="20"
                     viewBox="0 0 20 20"
@@ -216,9 +214,8 @@ const clearFilter = async () => {
                 </a>
               </span>
               <span v-if="interview.contactWhatsApp">
-                <a :href="`https://wa.me/${interview.contactWhatsApp}`" class="scale-button">
+                <a :href="`https://wa.me/${interview.contactWhatsApp}`">
                   <svg
-                    class="scale-svg"
                     fill="none"
                     height="20"
                     viewBox="0 0 20 20"
@@ -261,9 +258,8 @@ const clearFilter = async () => {
         </div>
         <div class="card-buttons">
           <router-link :to="{ name: ERouteNames.INTERVIEW_ID, params: { id: interview.id } }">
-            <button class="scale-button edit-button">
+            <button class="edit-button">
               <svg
-                class="scale-svg"
                 fill="none"
                 height="34"
                 viewBox="0 0 34 34"
@@ -281,9 +277,8 @@ const clearFilter = async () => {
               </svg>
             </button>
           </router-link>
-          <button class="scale-button delete-button" @click="confirmRemoveInterview(interview.id)">
+          <button class="delete-button" @click="confirmRemoveInterview(interview.id)">
             <svg
-              class="scale-svg"
               fill="none"
               height="34"
               viewBox="0 0 34 34"
@@ -355,19 +350,6 @@ const clearFilter = async () => {
   background-color: var(--active-background);
   color: white;
   cursor: pointer;
-}
-
-.scale-button {
-  border: none;
-  background-color: transparent;
-}
-
-.scale-svg {
-  transition: transform 0.4s ease-in-out;
-}
-
-.scale-button:active .scale-svg {
-  transform: scale(1.1, 1.1); /* Увеличение масштаба SVG */
 }
 
 .content-container {
@@ -442,11 +424,16 @@ const clearFilter = async () => {
 }
 
 .header-text,
-.header-button {
+.add-button {
   font-family: var(--manrope-bold), sans-serif;
   font-size: 16px !important;
   display: flex;
   align-items: center;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  touch-action: manipulation;
+  border: none;
+  background-color: transparent;
 }
 
 .header-container {
@@ -500,4 +487,6 @@ const clearFilter = async () => {
   font-size: 12px;
   margin-top: 15px;
 }
+
+
 </style>

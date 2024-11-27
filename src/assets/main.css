@@ -196,7 +196,16 @@ svg * {
   --card-border: #E2E2E2;
 }
 
+button {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  touch-action: manipulation;
+}
 
+
+a:-webkit-any-link {
+  -webkit-tap-highlight-color: transparent;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,
