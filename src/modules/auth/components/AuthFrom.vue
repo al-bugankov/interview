@@ -64,7 +64,7 @@ const submitForm = async () => {
 <style scoped>
 form {
   padding-inline: 10px;
-  font-family: var(--manrope-medium);
+  font-family: var(--manrope-medium), sans-serif;
   font-size: 14px;
 }
 
@@ -77,11 +77,11 @@ form {
   margin-block: 15px;
   background-color: var(--inProgress-color);
   border-radius: var(--element-radius);
-  font-family: var(--manrope-medium);
+  font-family: var(--manrope-medium), sans-serif;
 }
 
 .submit-button:hover,
 .submit-button:active {
-  background-color: var(--inProgress-darken) !important;
+  background-color: var(--inProgress-lighter) !important;
 }
 </style>

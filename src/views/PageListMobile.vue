@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { nextTick, onMounted, ref, watch } from 'vue'
-import { deleteDoc, doc, getFirestore } from 'firebase/firestore'
+import { onMounted, ref } from 'vue'
+import { deleteDoc, doc, getFirestore, Timestamp } from 'firebase/firestore'
 import { useAuthStore } from '@/modules/auth/stores/authStore'
 import { useConfirm } from 'primevue/useconfirm'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
@@ -22,6 +22,15 @@ const formattedVacancyLink = (link: string) => {
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
+const formatDate = (date: Timestamp | Date): string => {
+  if (date instanceof Timestamp) {
+    date = date.toDate()
+  }
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}.${month}.${year}`
+}
 
 onMounted(async () => {
   try {
@@ -29,16 +38,15 @@ onMounted(async () => {
     console.log('Fetching interviews...')
     console.log('Selected filter on mount:', selectedFilterResult.value) // Логируем фильтр при загрузке
     await interviewStore.getAllInterviews()
+    console.log(interviewStore)
+    const activeButton = document.getElementById('all-button')
+    if (activeButton) {
+      activeButton.classList.add('active')
+    }
   } catch (error) {
     console.error('Error fetching interviews:', error)
   } finally {
     isLoading.value = false
-  }
-
-  await nextTick() // Ждём, пока DOM обновится
-  const activeButton = document.getElementById('all-button')
-  if (activeButton) {
-    activeButton.classList.add('active')
   }
 })
 
@@ -62,6 +70,10 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
 
 const submitFilter = async (filterValue: TResultFilter) => {
   console.log('Setting filter to:', filterValue)
+  const activeButton = document.getElementById('all-button')
+  if (activeButton) {
+    activeButton.classList.remove('active')
+  }
   interviewStore.setFilterResult(filterValue) // Используем метод из interviewStore
   await interviewStore.getAllInterviews(true)
 }
@@ -71,39 +83,6 @@ const clearFilter = async () => {
   interviewStore.setFilterResult('') // Очищаем фильтр
   await interviewStore.getAllInterviews()
 }
-
-// Логируем изменения selectedFilterResult
-watch(selectedFilterResult, (newValue) => {
-  console.log('Filter value changed:', newValue) // Логируем, когда фильтр меняется
-  // Удаляем класс 'active' с всех кнопок
-  const allButtons = document.querySelectorAll('.filter-button')
-  allButtons.forEach((button) => button.classList.remove('active'))
-
-  // Определяем ID кнопки, которую нужно активировать
-  let buttonId = ''
-
-  if (newValue === 'Offer') {
-    buttonId = 'offer-button'
-  } else if (newValue === 'Refusal') {
-    buttonId = 'refusal-button'
-  } else if (newValue === 'inProgress') {
-    buttonId = 'inProgress-button'
-  } else {
-    buttonId = 'all-button' // Если фильтр не установлен, активируем all-button
-  }
-
-  // Используем MutationObserver для отслеживания появления кнопки в DOM
-  const observer = new MutationObserver(() => {
-    const button = document.getElementById(buttonId)
-    if (button) {
-      button.classList.add('active') // Добавляем класс active на найденную кнопку
-      observer.disconnect() // Останавливаем наблюдение после нахождения кнопки
-    }
-  })
-
-  // Настройка наблюдателя: отслеживаем добавление новых узлов в документ
-  observer.observe(document.body, { childList: true, subtree: true })
-})
 </script>
 
 <template>
@@ -162,7 +141,7 @@ watch(selectedFilterResult, (newValue) => {
       </router-link>
     </div>
 
-    <div class="nav-button-container">
+    <div class="filter-button-container">
       <button id="all-button" class="filter-button" type="button" @click="clearFilter">Все</button>
       <button id="offer-button" class="filter-button" type="button" @click="submitFilter('Offer')">
         Приглашение
@@ -185,7 +164,7 @@ watch(selectedFilterResult, (newValue) => {
       </button>
     </div>
 
-    <app-message v-if="!interviewStore.interviews.length" severity="info">
+    <app-message v-if="!interviewStore.interviews.length" class="empty-list" severity="info">
       Нет добавленных собеседований
     </app-message>
 
@@ -254,28 +233,26 @@ watch(selectedFilterResult, (newValue) => {
                   </svg>
                 </a>
               </span>
-              <span v-if="interview.contactPhone"></span>
             </div>
           </div>
           <div v-for="(stage, index) in interview.stages" :key="index" class="stages">
-            <div v-if="index !== undefined" class="card-item">
+            <div class="card-item">
               <div class="item-name">Этап</div>
               <div class="item-content">{{ index + 1 }}</div>
             </div>
-            <div v-if="stage.name !== undefined && stage.name !== ''" class="card-item">
+            <div class="card-item">
               <div class="item-name">Название этапа</div>
               <div class="item-content">{{ stage.name }}</div>
+              <div v-if="!stage.name" class="item-content"> Не заполнено </div>
             </div>
-            <div v-if="stage.date !== null" class="card-item">
+            <div class="card-item">
               <div class="item-name">Дата</div>
-              <div class="item-content">{{ stage.date }}</div>
+              <div class="item-content">{{ formatDate(stage.date) }}</div>
             </div>
-            <div
-              v-if="stage.description !== undefined && stage.description !== ''"
-              class="card-item"
-            >
+            <div class="card-item">
               <div class="item-name">Комментарии</div>
-              <div class="item-content">{{ stage.description }}</div>
+              <div class="item-content comments">{{ stage.description }}</div>
+              <div v-if="!stage.description" class="item-content"> Не заполнено </div>
             </div>
           </div>
           <div class="vacancy-link card-item">
@@ -363,17 +340,17 @@ watch(selectedFilterResult, (newValue) => {
   margin-right: 6px;
   cursor: pointer;
   margin-bottom: 12px;
-  font-family: var(--manrope-bold);
+  font-family: var(--manrope-bold), sans-serif;
   font-size: 12px;
 }
 
-.nav-button-container,
+.filter-button-container,
 .header-container {
   padding-inline: 10px;
 }
 
 .filter-button:active,
-.filter-button.active,
+.active,
 .filter-button:focus-within {
   background-color: var(--active-background);
   color: white;
@@ -386,7 +363,7 @@ watch(selectedFilterResult, (newValue) => {
 }
 
 .scale-svg {
-  transition: transform 0.4s ease-in-out; /* Плавный переход для изменения масштаба */
+  transition: transform 0.4s ease-in-out;
 }
 
 .scale-button:active .scale-svg {
@@ -407,24 +384,31 @@ watch(selectedFilterResult, (newValue) => {
 }
 
 .card-content {
-  width: 75%;
+  width: 240px;
   padding-left: 16px;
-  padding-right: 10px;
 }
 
 .card-item {
   display: flex;
   width: 100%;
-  justify-content: space-between;
   margin-bottom: 12px;
-  font-family: var(--manrope-medium);
+  font-family: var(--manrope-medium), sans-serif;
   font-size: 11px;
   line-height: 15px;
 }
 
+.card-item:not(:has(.comments)) {
+  justify-content: space-between;
+}
+
 .item-content {
-  font-family: var(--manrope-bold);
+  font-family: var(--manrope-bold), sans-serif;
   font-size: 12px;
+  width: 64%;
+  margin-left: 5px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  text-align: right;
 }
 
 .item-content span {
@@ -445,7 +429,7 @@ watch(selectedFilterResult, (newValue) => {
 }
 
 .card-buttons {
-  width: 25%;
+  width: 79px;
   display: flex;
   align-items: start;
   margin-right: 24px;
@@ -459,7 +443,7 @@ watch(selectedFilterResult, (newValue) => {
 
 .header-text,
 .header-button {
-  font-family: var(--manrope-bold);
+  font-family: var(--manrope-bold), sans-serif;
   font-size: 16px !important;
   display: flex;
   align-items: center;
@@ -473,15 +457,14 @@ watch(selectedFilterResult, (newValue) => {
 }
 
 .status span {
-  font-family: var(--manrope-medium);
+  font-family: var(--manrope-medium), sans-serif;
 }
 
 .offer {
   color: var(--offer-color);
 }
 
-.refusal,
-.p-confirmdialog-accept-button {
+.refusal {
   color: var(--refusal-color);
 }
 
@@ -499,7 +482,7 @@ watch(selectedFilterResult, (newValue) => {
 }
 
 .header-text {
-  font-family: var(--manrope-bold);
+  font-family: var(--manrope-bold), sans-serif;
   font-size: 16px;
 }
 
@@ -510,5 +493,11 @@ watch(selectedFilterResult, (newValue) => {
 
 .company-name {
   margin-top: 10px;
+}
+
+.empty-list {
+  font-family: var(--manrope-medium), sans-serif;
+  font-size: 12px;
+  margin-top: 15px;
 }
 </style>

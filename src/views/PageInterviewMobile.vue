@@ -5,6 +5,7 @@ import { useAuthStore } from '@/modules/auth/stores/authStore'
 import type { IInterview, IStage } from '@/interfaces'
 import { useRoute, useRouter } from 'vue-router'
 import { ERouteNames } from '@/router/ERouteNames'
+import { useConfirm } from 'primevue/useconfirm'
 
 const db = getFirestore()
 const userStore = useAuthStore()
@@ -12,6 +13,7 @@ const route = useRoute()
 const router = useRouter()
 const isLoading = ref(true)
 const interview = ref<IInterview>()
+const confirm = useConfirm()
 
 const docref = doc(db, `users/${userStore.userId}/interviews`, route.params.id as string)
 
@@ -37,12 +39,13 @@ const getData = async (): Promise<void> => {
   }
   isLoading.value = false
 }
+
 const addStage = () => {
   if (interview.value) {
     if (!interview.value.stages) {
       interview.value.stages = []
     }
-    interview.value.stages.push({ name: '', date: null, description: '' })
+    interview.value.stages.push({ name: '', date: undefined, description: '' })
   }
 }
 
@@ -55,27 +58,49 @@ const removeStage = (index: number) => {
 }
 
 const saveInterview = async (): Promise<void> => {
-  isLoading.value = true
 
-  try {
-    // Сохраняем данные интервью
-    await updateDoc(docref, { ...interview.value })
+  const hasEmptyDate = interview.value?.stages?.some((stage) => !stage.date);
 
-    // Получаем данные после обновления
-    await getData()
-  } catch (error) {
-    console.error('Ошибка при сохранении:', error)
-  } finally {
-    isLoading.value = false
-
-    // Переходим на страницу /list после выполнения всех асинхронных операций
-    router.push({ name: ERouteNames.INTERVIEW_LIST }) // Нет необходимости ожидать этого
+  if (hasEmptyDate) {
+    await new Promise<void>((resolve) => {
+      confirm.require({
+        message: 'Этап без указанной даты не будет сохранен!',
+        header: 'Сохранение изменений',
+        icon: 'pi pi-info-circle',
+        rejectLabel: 'Отмена',
+        acceptLabel: 'Продолжить',
+        rejectClass: 'p-button-secondary p-button-outlined',
+        acceptClass: 'p-button-danger',
+        accept: () => {
+          resolve();
+        }
+      });
+    });
   }
-}
+
+  const validStages = interview.value?.stages?.filter(stage => stage.date);
+
+  const interviewData = {
+    ...interview.value,
+    stages: validStages, // Отправляем только валидные этапы
+  };
+
+  isLoading.value = true;
+  try {
+    await updateDoc(docref, interviewData);
+    await getData();
+    console.log("Данные сохранены");
+  } catch (error) {
+    console.error("Ошибка при сохранении:", error);
+  } finally {
+    isLoading.value = false;
+    await router.push({ name: ERouteNames.INTERVIEW_LIST })
+  }
+};
 
 const observeStyles = () => {
   const observer = new MutationObserver(() => {
-    const datePickerPanel = document.querySelector('.p-datepicker-panel')
+    const datePickerPanel = document.querySelector('.p-datepicker-panel') as HTMLElement;
     if (datePickerPanel) {
       datePickerPanel.style.setProperty('--p-datepicker-panel-border-radius', '20px')
     }
@@ -92,6 +117,18 @@ onMounted(async () => {
 </script>
 
 <template>
+  <app-dialog
+    :style="{
+      width: '270px',
+      height: '215px',
+      color: '#000000',
+      fontFamily: 'var(--manrope-medium)',
+      fontSize: '14px',
+      '--p-dialog-title-font-size': '16px',
+      '--p-dialog-border-radius': '20px',
+      '--p-button-border-radius': '20px'
+    }"
+  />
   <app-progress v-if="isLoading" />
   <div v-else-if="interview?.id && !isLoading" class="class-interview">
     <app-card>
@@ -134,7 +171,7 @@ onMounted(async () => {
         <app-button
           :style="{
             '--p-button-info-background': 'var(--inProgress-color)',
-            '--p-button-info-active-background': 'var(--inProgress-darken)'
+            '--p-button-info-active-background': 'var(--inProgress-lighter)'
           }"
           icon="pi pi-plus"
           label="Добавить этап"
@@ -175,7 +212,7 @@ onMounted(async () => {
               class="delete-button"
               label="Удалить этап"
               severity="danger"
-              @click="removeStage"
+              @click="removeStage(index)"
             />
           </div>
         </template>
@@ -236,10 +273,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.content-interview {
-  max-width: 600px;
-  margin: auto;
-}
 
 .input {
   width: 100%;
@@ -259,38 +292,34 @@ onMounted(async () => {
   margin-bottom: 12px;
 }
 
-.datepicker-custom {
-  --p-datepicker-panel-border-radius: 20px !important;
-}
-
 .class-interview {
-  font-family: var(--manrope-medium);
+  font-family: var(--manrope-medium), sans-serif;
 }
 
-::v-deep .p-card-title {
+::v-deep(.p-card-title) {
   font-size: 16px;
-  font-family: var(--manrope-bold);
+  font-family: var(--manrope-bold), sans-serif;
 }
 
-::v-deep .p-card {
+::v-deep(.p-card) {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-::v-deep .p-card-content label {
+::v-deep(.p-card-content label) {
   font-size: 14px;
 }
 
-::v-deep .p-inputtext {
+::v-deep(.p-inputtext) {
   border-radius: var(--element-radius);
   font-size: 14px;
 }
 
-::v-deep .p-card-body {
+::v-deep(.p-card-body) {
   border-radius: var(--element-radius);
   height: auto;
 }
 
-::v-deep .p-button-info,
+::v-deep(.p-button-info),
 .save-button,
 .delete-button {
   width: 100%;
@@ -306,7 +335,7 @@ onMounted(async () => {
   background-color: var(--refusal-color);
 }
 
-::v-deep .p-button-info {
+::v-deep(.p-button-info) {
   background-color: var(--inProgress-color);
 }
 
@@ -332,7 +361,7 @@ onMounted(async () => {
   margin-right: 5px;
 }
 
-::v-deep .p-datepicker-panel {
+::v-deep(.p-datepicker-panel) {
   border-radius: 20px;
 }
 </style>

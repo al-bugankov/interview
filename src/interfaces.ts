@@ -1,3 +1,5 @@
+import type { Timestamp } from 'firebase/firestore'
+
 export interface IInterview {
     id: string,
     company: string,
@@ -16,6 +18,6 @@ export type TResultFilter = 'Refusal' | 'Offer' | 'inProgress'
 
 export interface IStage {
     name: string,
-    date: null | Date,
+    date?: Date | Timestamp,
     description: string,
 }

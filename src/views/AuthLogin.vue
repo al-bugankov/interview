@@ -57,7 +57,7 @@ a {
 
 .header-title {
   text-align: center;
-  font-family: var(--manrope-bold);
+  font-family: var(--manrope-bold), sans-serif;
   font-size: 16px;
   margin-block: 12px;
 }
@@ -66,7 +66,7 @@ a {
   display: flex;
   justify-content: space-evenly;
   margin-bottom: 20px;
-  font-family: var(--manrope-medium);
+  font-family: var(--manrope-medium), sans-serif;
   font-size: 14px;
 }
 </style>

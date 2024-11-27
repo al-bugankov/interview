@@ -21,7 +21,7 @@ export const useInterviewStore = defineStore('interviewsStore', {
         getData = query(
           collection(db, `users/${userIdFromStorage()}/interviews`),
           orderBy('createdAt', 'desc'),
-          where('result', '==', this.selectedFilterResult) // Проверить, соответствует ли значение фильтру
+          where('result', '==', this.selectedFilterResult)
         )
       } else {
         getData = query(
@@ -35,11 +35,4 @@ export const useInterviewStore = defineStore('interviewsStore', {
       })
     }
   }
-
-  // const formatDate = (date: Date): string => {
-  //   const day = String(date.getDate()).padStart(2, '0')
-  //   const month = String(date.getMonth() + 1).padStart(2, '0')
-  //   const year = date.getFullYear()
-  //   return `${day}.${month}.${year}`
-  // }
 })

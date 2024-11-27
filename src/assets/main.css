@@ -191,7 +191,7 @@ svg * {
   --offer-color: #48C95F;
   --refusal-color: #FF0000;
   --inProgress-color: #27A6E5;
-  --inProgress-darken: #28C1E5;
+  --inProgress-lighter: #28C1E5;
   --active-background:  #565656;
   --card-border: #E2E2E2;
 }

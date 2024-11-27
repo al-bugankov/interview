@@ -123,15 +123,15 @@ const addNewInterview = async (): Promise<void> => {
 
 <style scoped>
 .input,
-::v-deep .p-inputnumber-input {
+::v-deep(.p-inputnumber-input) {
   width: 100%;
   border-radius: var(--element-radius);
-  font-family: var(--manrope-medium);
+  font-family: var(--manrope-medium), sans-serif;
   font-size: 14px;
   margin-bottom: 12px;
 }
 
-::v-deep .p-inputnumber {
+::v-deep(.p-inputnumber) {
   width: 49%;
 }
 
@@ -141,7 +141,7 @@ const addNewInterview = async (): Promise<void> => {
 }
 
 .input::placeholder {
-  font-family: var(--manrope-medium);
+  font-family: var(--manrope-medium), sans-serif;
   font-size: 12px;
 }
 
@@ -151,12 +151,12 @@ const addNewInterview = async (): Promise<void> => {
   border-radius: var(--element-radius);
 }
 
-::v-deep .p-card-title {
-  font-family: var(--manrope-bold);
+::v-deep(.p-card-title) {
+  font-family: var(--manrope-bold), sans-serif;
   font-size: 16px;
 }
 
-::v-deep .p-card-body {
+::v-deep(.p-card-body) {
   padding: 12px;
 }
 
@@ -164,17 +164,17 @@ const addNewInterview = async (): Promise<void> => {
   width: 100%;
   background-color: var(--inProgress-color);
   border-radius: var(--element-radius);
-  font-family: var(--manrope-medium);
+  font-family: var(--manrope-medium), sans-serif;
 }
 
 .add-button:hover,
 .add-button:active {
-  background-color: var(--inProgress-darken) !important;
+  background-color: var(--inProgress-lighter) !important;
 }
 
 .error {
   height: 12px;
-  font-family: var(--manrope-bold);
+  font-family: var(--manrope-bold), sans-serif;
   font-size: 10px;
   color: var(--refusal-color);
   margin-top: -12px;
