@@ -6,7 +6,9 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 import type { TResultFilter } from '@/interfaces'
 import { ERouteNames } from '@/router/ERouteNames'
+import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 
+const feedbackStore = useFeedbackStore()
 const interviewStore = useInterviewStore()
 const userStore = useAuthStore()
 const db = getFirestore()
@@ -33,20 +35,13 @@ const formatDate = (date: Timestamp | Date): string => {
 }
 
 onMounted(async () => {
-  try {
-    isLoading.value = true
-    console.log('Fetching interviews...')
-    console.log('Selected filter on mount:', selectedFilterResult.value) // Логируем фильтр при загрузке
-    await interviewStore.getAllInterviews()
-    console.log(interviewStore)
-    const activeButton = document.getElementById('all-button')
-    if (activeButton) {
-      activeButton.classList.add('active')
-    }
-  } catch (error) {
-    console.error('Error fetching interviews:', error)
-  } finally {
-    isLoading.value = false
+  feedbackStore.isGlobalLoading = true
+  await interviewStore.getAllInterviews()
+  feedbackStore.isGlobalLoading = true
+
+  const activeButton = document.getElementById('all-button')
+  if (activeButton) {
+    activeButton.classList.add('active')
   }
 })
 
@@ -240,7 +235,7 @@ const clearFilter = async () => {
             <div class="card-item">
               <div class="item-name">Название этапа</div>
               <div class="item-content">{{ stage.name }}</div>
-              <div v-if="!stage.name" class="item-content"> Не заполнено </div>
+              <div v-if="!stage.name" class="item-content">Не заполнено</div>
             </div>
             <div class="card-item">
               <div class="item-name">Дата</div>
@@ -249,7 +244,7 @@ const clearFilter = async () => {
             <div class="card-item">
               <div class="item-name">Комментарии</div>
               <div class="item-content comments">{{ stage.description }}</div>
-              <div v-if="!stage.description" class="item-content"> Не заполнено </div>
+              <div v-if="!stage.description" class="item-content">Не заполнено</div>
             </div>
           </div>
           <div class="vacancy-link card-item">
@@ -487,6 +482,4 @@ const clearFilter = async () => {
   font-size: 12px;
   margin-top: 15px;
 }
-
-
 </style>

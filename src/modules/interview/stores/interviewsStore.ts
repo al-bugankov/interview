@@ -3,6 +3,7 @@ import { collection, getDocs, getFirestore, orderBy, query, where } from 'fireba
 import type { IInterview } from '@/interfaces'
 import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
 import type { IInterviewsStoreState } from '@/modules/interview/types/IInterviewsStoreState'
+import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 
 export const useInterviewStore = defineStore('interviewsStore', {
   state: (): IInterviewsStoreState => ({
@@ -15,24 +16,34 @@ export const useInterviewStore = defineStore('interviewsStore', {
       this.selectedFilterResult = filterValue
     },
     async getAllInterviews(isFilter: boolean = false) {
+      const feedbackStore = useFeedbackStore()
       const db = getFirestore()
-      let getData
-      if (isFilter) {
-        getData = query(
-          collection(db, `users/${userIdFromStorage()}/interviews`),
-          orderBy('createdAt', 'desc'),
-          where('result', '==', this.selectedFilterResult)
-        )
-      } else {
-        getData = query(
-          collection(db, `users/${userIdFromStorage()}/interviews`),
-          orderBy('createdAt', 'desc')
-        )
+
+      try {
+        const userInterviewsRawData = () => {
+          if (isFilter) {
+            return query(
+              collection(db, `users/${userIdFromStorage()}/interviews`),
+              orderBy('createdAt', 'desc'),
+              where('result', '==', this.selectedFilterResult)
+            )
+          }
+
+          return query(
+            collection(db, `users/${userIdFromStorage()}/interviews`),
+            orderBy('createdAt', 'desc')
+          )
+        }
+
+        const userInterviews = await getDocs(userInterviewsRawData())
+        this.interviews = userInterviews.docs.map((doc) => {
+          return doc.data() as IInterview
+        })
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          feedbackStore.showToast({ type: 'error', title: 'Error', message: error.message })
+        }
       }
-      const listDocs = await getDocs(getData)
-      this.interviews = listDocs.docs.map((doc) => {
-        return doc.data() as IInterview
-      })
     }
   }
 })
