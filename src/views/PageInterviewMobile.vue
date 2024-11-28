@@ -6,19 +6,21 @@ import type { IInterview, IStage } from '@/interfaces'
 import { useRoute, useRouter } from 'vue-router'
 import { ERouteNames } from '@/router/ERouteNames'
 import { useConfirm } from 'primevue/useconfirm'
+import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
+
 
 const db = getFirestore()
 const userStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
-const isLoading = ref(true)
 const interview = ref<IInterview>()
 const confirm = useConfirm()
+const feedbackStore = useFeedbackStore()
 
 const docref = doc(db, `users/${userStore.userId}/interviews`, route.params.id as string)
 
 const getData = async (): Promise<void> => {
-  isLoading.value = true
+  feedbackStore.isGlobalLoading = true
   const docSnap = await getDoc(docref)
 
   if (docSnap.exists()) {
@@ -37,7 +39,7 @@ const getData = async (): Promise<void> => {
     }
     interview.value = data
   }
-  isLoading.value = false
+  feedbackStore.isGlobalLoading = false
 }
 
 const addStage = () => {
@@ -85,7 +87,7 @@ const saveInterview = async (): Promise<void> => {
     stages: validStages, // Отправляем только валидные этапы
   };
 
-  isLoading.value = true;
+  feedbackStore.isGlobalLoading = true;
   try {
     await updateDoc(docref, interviewData);
     await getData();
@@ -93,7 +95,7 @@ const saveInterview = async (): Promise<void> => {
   } catch (error) {
     console.error("Ошибка при сохранении:", error);
   } finally {
-    isLoading.value = false;
+    feedbackStore.isGlobalLoading = false;
     await router.push({ name: ERouteNames.INTERVIEW_LIST })
   }
 };
@@ -129,8 +131,8 @@ onMounted(async () => {
       '--p-button-border-radius': '20px'
     }"
   />
-  <app-progress v-if="isLoading" />
-  <div v-else-if="interview?.id && !isLoading" class="class-interview">
+
+  <div v-if="interview?.id && !feedbackStore.isGlobalLoading" class="class-interview">
     <app-card>
       <template #title>Собеседование в компанию {{ interview.company }}</template>
       <template #content>

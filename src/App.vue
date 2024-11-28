@@ -2,23 +2,21 @@
 import NavigationBar from '@/modules/navigation/components/NavigationBar.vue'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import ToastMessage from '@/modules/feedback/components/ToastMessage.vue'
+import LoaderOverlay from '@/modules/overlay/components/LoaderOverlay.vue'
 
 const feedbackStore = useFeedbackStore()
 </script>
 
 <template>
-  <app-progress
-    v-if="feedbackStore.isGlobalLoading"
-    class="flex justify-content-center align-content-center"
-    style="height: 100vh"
-  />
   <toast-message />
 
   <div class="app-container">
+ <loader-overlay />
     <div class="header-container">
       <navigation-bar />
     </div>
     <div class="content-container">
+
       <router-view />
     </div>
   </div>
@@ -30,6 +28,7 @@ const feedbackStore = useFeedbackStore()
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative
 }
 
 .header-container,
@@ -43,4 +42,5 @@ const feedbackStore = useFeedbackStore()
 .content-container {
   margin-bottom: 30px;
 }
+
 </style>

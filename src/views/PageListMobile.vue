@@ -4,17 +4,18 @@ import { deleteDoc, doc, getFirestore, Timestamp } from 'firebase/firestore'
 import { useAuthStore } from '@/modules/auth/stores/authStore'
 import { useConfirm } from 'primevue/useconfirm'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
-import type { TResultFilter } from '@/interfaces'
 import { ERouteNames } from '@/router/ERouteNames'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
+import { useRouter } from 'vue-router'
 
-const feedbackStore = useFeedbackStore()
+import type { TResultFilter } from '@/interfaces'
+
 const interviewStore = useInterviewStore()
 const userStore = useAuthStore()
 const db = getFirestore()
 const confirm = useConfirm()
-const selectedFilterResult = ref<string>('') // Стартовое значение фильтра
-const isLoading = ref<boolean>(true)
+const feedbackStore = useFeedbackStore()
+const router = useRouter()
 
 const formattedVacancyLink = (link: string) => {
   const formattedlink = link.trim() // Убираем лишние пробелы
@@ -37,7 +38,7 @@ const formatDate = (date: Timestamp | Date): string => {
 onMounted(async () => {
   feedbackStore.isGlobalLoading = true
   await interviewStore.getAllInterviews()
-  feedbackStore.isGlobalLoading = true
+  feedbackStore.isGlobalLoading = false
 
   const activeButton = document.getElementById('all-button')
   if (activeButton) {
@@ -55,10 +56,10 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
     rejectClass: 'p-button-secondary p-button-outlined',
     acceptClass: 'p-button-danger',
     accept: async () => {
-      isLoading.value = true
+      feedbackStore.isGlobalLoading = true
       await deleteDoc(doc(db, `users/${userStore.userId}/interviews`, id))
       await interviewStore.getAllInterviews()
-      isLoading.value = false
+      feedbackStore.isGlobalLoading = false
     }
   })
 }
@@ -78,6 +79,18 @@ const clearFilter = async () => {
   interviewStore.setFilterResult('') // Очищаем фильтр
   await interviewStore.getAllInterviews()
 }
+
+const editInterview = (id: string) => {
+  feedbackStore.isGlobalLoading = true
+  router.push({
+    name: ERouteNames.INTERVIEW_ID,
+    params: { id }
+  })
+}
+const createInterview = () => {
+  router.push({ name: ERouteNames.INTERVIEW_CREATE })
+}
+
 </script>
 
 <template>
@@ -99,40 +112,38 @@ const clearFilter = async () => {
       <div class="header-text">
         <span>Мои собеседования</span>
       </div>
-      <router-link :to="{ name: ERouteNames.INTERVIEW_CREATE }">
-        <button class="add-button" type="button">
-          <svg
-            fill="none"
-            height="34"
-            viewBox="0 0 34 34"
-            width="34"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <rect fill="#ECECEC" height="34" rx="12" width="34" />
-            <g clip-path="url(#clip0_103_1108)">
-              <path
-                d="M17 10.875V23.125"
-                stroke="black"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-              />
-              <path
-                d="M10.875 17H23.125"
-                stroke="black"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-              />
-            </g>
-            <defs>
-              <clipPath id="clip0_103_1108">
-                <rect fill="white" height="14" transform="translate(10 10)" width="14" />
-              </clipPath>
-            </defs>
-          </svg>
-        </button>
-      </router-link>
+      <button class="add-button" type="button" @click="createInterview">
+        <svg
+          fill="none"
+          height="34"
+          viewBox="0 0 34 34"
+          width="34"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect fill="#ECECEC" height="34" rx="12" width="34" />
+          <g clip-path="url(#clip0_103_1108)">
+            <path
+              d="M17 10.875V23.125"
+              stroke="black"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            />
+            <path
+              d="M10.875 17H23.125"
+              stroke="black"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_103_1108">
+              <rect fill="white" height="14" transform="translate(10 10)" width="14" />
+            </clipPath>
+          </defs>
+        </svg>
+      </button>
     </div>
 
     <div class="filter-button-container">
@@ -252,26 +263,24 @@ const clearFilter = async () => {
           </div>
         </div>
         <div class="card-buttons">
-          <router-link :to="{ name: ERouteNames.INTERVIEW_ID, params: { id: interview.id } }">
-            <button class="edit-button">
-              <svg
-                fill="none"
-                height="34"
-                viewBox="0 0 34 34"
-                width="34"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect fill="#ECECEC" height="34" rx="12" width="34" />
-                <path
-                  d="M20.0779 11.5014C20.2368 11.3424 20.4255 11.2163 20.6332 11.1303C20.8409 11.0443 21.0635 11 21.2883 11C21.513 11 21.7356 11.0443 21.9433 11.1303C22.151 11.2163 22.3397 11.3424 22.4986 11.5014C22.6576 11.6603 22.7837 11.849 22.8697 12.0567C22.9557 12.2644 23 12.487 23 12.7117C23 12.9365 22.9557 13.1591 22.8697 13.3668C22.7837 13.5745 22.6576 13.7632 22.4986 13.9221L14.3286 22.0922L11 23L11.9078 19.6714L20.0779 11.5014Z"
-                  stroke="#27A6E5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                />
-              </svg>
-            </button>
-          </router-link>
+          <button class="edit-button" @click="editInterview(interview.id)">
+            <svg
+              fill="none"
+              height="34"
+              viewBox="0 0 34 34"
+              width="34"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect fill="#ECECEC" height="34" rx="12" width="34" />
+              <path
+                d="M20.0779 11.5014C20.2368 11.3424 20.4255 11.2163 20.6332 11.1303C20.8409 11.0443 21.0635 11 21.2883 11C21.513 11 21.7356 11.0443 21.9433 11.1303C22.151 11.2163 22.3397 11.3424 22.4986 11.5014C22.6576 11.6603 22.7837 11.849 22.8697 12.0567C22.9557 12.2644 23 12.487 23 12.7117C23 12.9365 22.9557 13.1591 22.8697 13.3668C22.7837 13.5745 22.6576 13.7632 22.4986 13.9221L14.3286 22.0922L11 23L11.9078 19.6714L20.0779 11.5014Z"
+                stroke="#27A6E5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+              />
+            </svg>
+          </button>
           <button class="delete-button" @click="confirmRemoveInterview(interview.id)">
             <svg
               fill="none"
