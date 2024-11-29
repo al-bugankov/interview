@@ -36,17 +36,17 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'interview/create',
         name: ERouteNames.INTERVIEW_CREATE,
-        component: () => import('@/views/PageHomeMobile.vue')
+        component: () => import('@/views/AddInterviewPage.vue')
       },
       {
         path: 'interview/:id',
         name: ERouteNames.INTERVIEW_ID,
-        component: () => import('@/views/PageInterviewMobile.vue')
+        component: () => import('@/views/EditInterviewPage.vue')
       },
       {
         path: 'list',
         name: ERouteNames.INTERVIEW_LIST,
-        component: () => import('@/views/PageListMobile.vue')
+        component: () => import('@/views/PageList.vue')
       },
       {
         path: 'statistic',

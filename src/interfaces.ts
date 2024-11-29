@@ -14,10 +14,11 @@ export interface IInterview {
     stages?: IStage[],
     result?: TResultFilter,
 }
+
 export type TResultFilter = 'Refusal' | 'Offer' | 'inProgress'
 
 export interface IStage {
     name: string,
-    date?: Date | Timestamp,
+    date: Date | Timestamp | string,
     description: string,
 }

@@ -88,14 +88,14 @@ const addNewInterview = async (): Promise<void> => {
           v-model="hrName"
           :class="{ 'is-invalid': isSubmitted && !hrName }"
           class="input"
-          placeholder="Имя HR"
+          placeholder="Имя"
         />
         <p v-if="!hrName && isSubmitted" class="error">Поле обязательно для заполнения!</p>
         <app-input-text
           v-model="contactTelegram"
           :class="{ 'is-invalid': isSubmitted && !contactTelegram && !contactWhatsApp }"
           class="input"
-          placeholder="Telegram username HR"
+          placeholder="Telegram"
         />
         <p v-if="isSubmitted && !contactTelegram && !contactWhatsApp" class="error">
           Одно из этих полей обязательно для заполнения!
@@ -104,12 +104,12 @@ const addNewInterview = async (): Promise<void> => {
           v-model="contactWhatsApp"
           :class="{ 'is-invalid': isSubmitted && !contactTelegram && !contactWhatsApp }"
           class="input"
-          placeholder="WhatsApp HR"
+          placeholder="WhatsApp"
         />
         <p v-if="isSubmitted && !contactTelegram && !contactWhatsApp" class="error">
           Одно из этих полей обязательно для заполнения!
         </p>
-        <app-input-text v-model="contactPhone" class="input" placeholder="Телефон HR" />
+        <app-input-text v-model="contactPhone" class="input" placeholder="Телефон" />
         <app-button
           :loading="loading"
           class="add-button"

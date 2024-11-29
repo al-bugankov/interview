@@ -2,11 +2,13 @@
 import { onMounted, ref } from 'vue'
 import { doc, getDoc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
 import { useAuthStore } from '@/modules/auth/stores/authStore'
-import type { IInterview, IStage } from '@/interfaces'
 import { useRoute, useRouter } from 'vue-router'
 import { ERouteNames } from '@/router/ERouteNames'
 import { useConfirm } from 'primevue/useconfirm'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
+import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
+
+import type { IInterview, IStage } from '@/interfaces'
 
 
 const db = getFirestore()
@@ -16,6 +18,10 @@ const router = useRouter()
 const interview = ref<IInterview>()
 const confirm = useConfirm()
 const feedbackStore = useFeedbackStore()
+const interviewStore = useInterviewStore()
+const interviewId = route.params.id;
+
+interviewStore.setInterviewId(interviewId as string)
 
 const docref = doc(db, `users/${userStore.userId}/interviews`, route.params.id as string)
 
@@ -47,7 +53,7 @@ const addStage = () => {
     if (!interview.value.stages) {
       interview.value.stages = []
     }
-    interview.value.stages.push({ name: '', date: undefined, description: '' })
+    interview.value.stages.push({ name: '', date: '', description: '' })
   }
 }
 
@@ -57,6 +63,17 @@ const removeStage = (index: number) => {
       interview.value.stages.splice(index, 1)
     }
   }
+}
+
+const observeStyles = () => {
+  const observer = new MutationObserver(() => {
+    const datePickerPanel = document.querySelector('.p-datepicker-panel') as HTMLElement;
+    if (datePickerPanel) {
+      datePickerPanel.style.setProperty('--p-datepicker-panel-border-radius', '20px')
+    }
+  })
+
+  observer.observe(document.body, { childList: true, subtree: true })
 }
 
 const saveInterview = async (): Promise<void> => {
@@ -85,31 +102,12 @@ const saveInterview = async (): Promise<void> => {
   const interviewData = {
     ...interview.value,
     stages: validStages, // Отправляем только валидные этапы
+    id: interviewId,
   };
-
-  feedbackStore.isGlobalLoading = true;
-  try {
-    await updateDoc(docref, interviewData);
-    await getData();
-    console.log("Данные сохранены");
-  } catch (error) {
-    console.error("Ошибка при сохранении:", error);
-  } finally {
-    feedbackStore.isGlobalLoading = false;
-    await router.push({ name: ERouteNames.INTERVIEW_LIST })
-  }
+  console.log('interviewData', interviewData)
+  await interviewStore.updateInterview(interviewData);
+  await router.push({ name: ERouteNames.INTERVIEW_LIST })
 };
-
-const observeStyles = () => {
-  const observer = new MutationObserver(() => {
-    const datePickerPanel = document.querySelector('.p-datepicker-panel') as HTMLElement;
-    if (datePickerPanel) {
-      datePickerPanel.style.setProperty('--p-datepicker-panel-border-radius', '20px')
-    }
-  })
-
-  observer.observe(document.body, { childList: true, subtree: true })
-}
 
 onMounted(async () => {
   // Вызов getData и observeStyles
@@ -119,7 +117,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <app-dialog
+  <app-confirm-dialog
     :style="{
       width: '270px',
       height: '215px',

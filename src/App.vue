@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import NavigationBar from '@/modules/navigation/components/NavigationBar.vue'
-import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import ToastMessage from '@/modules/feedback/components/ToastMessage.vue'
 import LoaderOverlay from '@/modules/overlay/components/LoaderOverlay.vue'
 
-const feedbackStore = useFeedbackStore()
+
 </script>
 
 <template>
