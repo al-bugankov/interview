@@ -4,4 +4,5 @@ export interface IInterviewsStoreState {
   interviews: IInterview[]
   selectedFilterResult: string
   interviewId: string
+  currentInterview: IInterview //добавил
 }

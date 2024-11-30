@@ -1,69 +1,19 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
-import { doc, getDoc, getFirestore, Timestamp, updateDoc } from 'firebase/firestore'
-import { useAuthStore } from '@/modules/auth/stores/authStore'
+import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ERouteNames } from '@/router/ERouteNames'
 import { useConfirm } from 'primevue/useconfirm'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 
-import type { IInterview, IStage } from '@/interfaces'
-
-
-const db = getFirestore()
-const userStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
-const interview = ref<IInterview>()
 const confirm = useConfirm()
 const feedbackStore = useFeedbackStore()
 const interviewStore = useInterviewStore()
-const interviewId = route.params.id;
+const interviewId = route.params.id as string;
 
 interviewStore.setInterviewId(interviewId as string)
-
-const docref = doc(db, `users/${userStore.userId}/interviews`, route.params.id as string)
-
-const getData = async (): Promise<void> => {
-  feedbackStore.isGlobalLoading = true
-  const docSnap = await getDoc(docref)
-
-  if (docSnap.exists()) {
-    const data = docSnap.data() as IInterview
-
-    if (data.stages && data.stages.length) {
-      data.stages = data.stages.map((stage: IStage) => {
-        if (stage.date && stage.date instanceof Timestamp) {
-          return {
-            ...stage,
-            date: stage.date.toDate()
-          }
-        }
-        return stage
-      })
-    }
-    interview.value = data
-  }
-  feedbackStore.isGlobalLoading = false
-}
-
-const addStage = () => {
-  if (interview.value) {
-    if (!interview.value.stages) {
-      interview.value.stages = []
-    }
-    interview.value.stages.push({ name: '', date: '', description: '' })
-  }
-}
-
-const removeStage = (index: number) => {
-  if (interview.value) {
-    if (interview.value.stages) {
-      interview.value.stages.splice(index, 1)
-    }
-  }
-}
 
 const observeStyles = () => {
   const observer = new MutationObserver(() => {
@@ -72,13 +22,12 @@ const observeStyles = () => {
       datePickerPanel.style.setProperty('--p-datepicker-panel-border-radius', '20px')
     }
   })
-
   observer.observe(document.body, { childList: true, subtree: true })
 }
 
-const saveInterview = async (): Promise<void> => {
+const validateInterview = async (): Promise<void> => {
 
-  const hasEmptyDate = interview.value?.stages?.some((stage) => !stage.date);
+  const hasEmptyDate = interviewStore.currentInterview?.stages?.some((stage) => !stage.date);
 
   if (hasEmptyDate) {
     await new Promise<void>((resolve) => {
@@ -97,23 +46,17 @@ const saveInterview = async (): Promise<void> => {
     });
   }
 
-  const validStages = interview.value?.stages?.filter(stage => stage.date);
+  interviewStore.currentInterview.stages = interviewStore.currentInterview?.stages?.filter(stage => stage.date);
 
-  const interviewData = {
-    ...interview.value,
-    stages: validStages, // Отправляем только валидные этапы
-    id: interviewId,
-  };
-  console.log('interviewData', interviewData)
-  await interviewStore.updateInterview(interviewData);
+  await interviewStore.updateInterview();
   await router.push({ name: ERouteNames.INTERVIEW_LIST })
 };
 
 onMounted(async () => {
-  // Вызов getData и observeStyles
-  await getData()
+  await interviewStore.getInterview();
   observeStyles()
 })
+
 </script>
 
 <template>
@@ -130,32 +73,32 @@ onMounted(async () => {
     }"
   />
 
-  <div v-if="interview?.id && !feedbackStore.isGlobalLoading" class="class-interview">
+  <div v-if="interviewStore.currentInterview && !feedbackStore.isGlobalLoading" class="class-interview">
     <app-card>
-      <template #title>Собеседование в компанию {{ interview.company }}</template>
+      <template #title>Собеседование в компанию {{ interviewStore.currentInterview.company }}</template>
       <template #content>
         <label for="company">Компания</label>
-        <app-input-text id="company" v-model="interview.company" class="input" />
+        <app-input-text id="company" v-model="interviewStore.currentInterview.company" class="input" />
 
         <label for="vacancyLink">Описание Вакансии (ссылка)</label>
-        <app-input-text id="vacancyLink" v-model="interview.vacancyLink" class="input" />
+        <app-input-text id="vacancyLink" v-model="interviewStore.currentInterview.vacancyLink" class="input" />
 
         <label for="hrName">Контакт (имя)</label>
-        <app-input-text id="hrName" v-model="interview.hrName" class="input" />
+        <app-input-text id="hrName" v-model="interviewStore.currentInterview.hrName" class="input" />
 
         <label for="contactTelegram">Telegram username HR</label>
-        <app-input-text id="contactTelegram" v-model="interview.contactTelegram" class="input" />
+        <app-input-text id="contactTelegram" v-model="interviewStore.currentInterview.contactTelegram" class="input" />
 
         <label for="contactWhatsApp">WhatsApp</label>
-        <app-input-text id="contactWhatsApp" v-model="interview.contactWhatsApp" class="input" />
+        <app-input-text id="contactWhatsApp" v-model="interviewStore.currentInterview.contactWhatsApp" class="input" />
 
         <label for="contactPhone">Телефон HR</label>
-        <app-input-text id="contactPhone" v-model="interview.contactPhone" class="input" />
+        <app-input-text id="contactPhone" v-model="interviewStore.currentInterview.contactPhone" class="input" />
 
         <label for="salaryFrom">Зарплатная вилка от</label>
         <app-input-number
           id="salaryFrom"
-          v-model="interview.salaryFrom"
+          v-model="interviewStore.currentInterview.salaryFrom"
           class="input"
           placeholder="Зарплатная вилка от"
         />
@@ -163,7 +106,7 @@ onMounted(async () => {
         <label for="salaryTo">Зарплатная вилка до</label>
         <app-input-number
           id="salaryTo"
-          v-model="interview.salaryTo"
+          v-model="interviewStore.currentInterview.salaryTo"
           class="input"
           placeholder="Зарплатная вилка до"
         />
@@ -176,10 +119,10 @@ onMounted(async () => {
           icon="pi pi-plus"
           label="Добавить этап"
           severity="info"
-          @click="addStage"
+          @click="interviewStore.addStage"
         />
-        <template v-if="interview.stages">
-          <div v-for="(stage, index) in interview.stages" :key="index" class="interview-stage">
+        <template v-if="interviewStore.currentInterview.stages">
+          <div v-for="(stage, index) in interviewStore.currentInterview.stages" :key="index" class="interview-stage">
             <div class="datepicker-input-container">
               <label :for="`stage-name-${index}`">Название этапа</label>
               <app-input-text
@@ -212,7 +155,7 @@ onMounted(async () => {
               class="delete-button"
               label="Удалить этап"
               severity="danger"
-              @click="removeStage(index)"
+              @click="interviewStore.removeStage(index)"
             />
           </div>
         </template>
@@ -220,7 +163,7 @@ onMounted(async () => {
           <div class="radio-item refusal">
             <app-radio
               id="interviewResult1"
-              v-model="interview.result"
+              v-model="interviewStore.currentInterview.result"
               :style="{
                 '--p-radiobutton-checked-background': 'var(--refusal-color)',
                 '--p-radiobutton-checked-hover-background': 'var(--refusal-color)',
@@ -234,7 +177,7 @@ onMounted(async () => {
           <div class="radio-item offer">
             <app-radio
               id="interviewResult2"
-              v-model="interview.result"
+              v-model="interviewStore.currentInterview.result"
               :style="{
                 '--p-radiobutton-checked-background': 'var(--offer-color)',
                 '--p-radiobutton-checked-hover-background': 'var(--offer-color)',
@@ -248,7 +191,7 @@ onMounted(async () => {
           <div class="radio-item inProgress">
             <app-radio
               id="interviewResult3"
-              v-model="interview.result"
+              v-model="interviewStore.currentInterview.result"
               :style="{
                 '--p-radiobutton-checked-background': 'var(--inProgress-color)',
                 '--p-radiobutton-checked-hover-background': 'var(--inProgress-color)',
@@ -265,7 +208,7 @@ onMounted(async () => {
           class="save-button"
           icon="pi pi-save"
           label="Сохранить"
-          @click="saveInterview"
+          @click="validateInterview"
         />
       </template>
     </app-card>

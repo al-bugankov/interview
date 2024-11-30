@@ -6,4 +6,5 @@ export interface INavigationItem {
   icon: string
   path: RouteLocationRaw
   show: ComputedRef<boolean>
+  action?: () => void
 }

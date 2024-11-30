@@ -2,8 +2,10 @@
 import { useAuthStore } from '@/modules/auth/stores/authStore'
 import { computed, ref } from 'vue'
 import { ERouteNames } from '@/router/ERouteNames'
+import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 
 const authStore = useAuthStore()
+const interviewStore = useInterviewStore()
 
 const navigationItems = ref([
   {
@@ -17,6 +19,9 @@ const navigationItems = ref([
     icon: 'pi pi-list',
     path: { name: ERouteNames.INTERVIEW_LIST },
     show: computed((): boolean => !!authStore.userId),
+    action: () => {
+      interviewStore.getAllInterviews();
+    },
   },
   {
     label: 'Статистика',

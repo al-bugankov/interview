@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'list',
         name: ERouteNames.INTERVIEW_LIST,
-        component: () => import('@/views/PageList.vue')
+        component: () => import('@/views/PageListInterviews.vue')
       },
       {
         path: 'statistic',
