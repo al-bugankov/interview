@@ -20,7 +20,8 @@ const navigationItems = ref([
     path: { name: ERouteNames.INTERVIEW_LIST },
     show: computed((): boolean => !!authStore.userId),
     action: () => {
-      interviewStore.getAllInterviews();
+      console.log("Action executed: Список собеседований");
+      interviewStore.clearFilter()
     },
   },
   {
@@ -34,6 +35,7 @@ const navigationItems = ref([
 const visibleNavigationItems = computed(() =>
   navigationItems.value.filter(item => item.show)
 );
+
 </script>
 
 <template>
@@ -41,7 +43,7 @@ const visibleNavigationItems = computed(() =>
     <app-menubar :model="visibleNavigationItems" class="menu">
       <template #item="{ item, props }">
         <template v-if="item.show">
-          <router-link :to="item.path" v-bind="props.action">
+          <router-link :to="item.path" v-bind="props.action" @click="item.action">
             <span :class="item.icon" class="p-menuitem-icon" />
             <span> {{ item.label }} </span>
           </router-link>

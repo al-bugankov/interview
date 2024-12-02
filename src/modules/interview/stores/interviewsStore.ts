@@ -1,5 +1,14 @@
 import { defineStore } from 'pinia'
-import { collection, getDocs, getFirestore, orderBy, query, where,  getDoc, Timestamp } from 'firebase/firestore'
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  orderBy,
+  query,
+  where,
+  getDoc,
+  Timestamp,
+} from 'firebase/firestore'
 import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import { useAuthStore } from '@/modules/auth/stores/authStore'
@@ -8,9 +17,8 @@ import { doc, updateDoc } from 'firebase/firestore'
 import type { IInterview, IStage } from '@/interfaces'
 import type { IInterviewsStoreState } from '@/modules/interview/types/IInterviewsStoreState'
 
-const feedbackStore = useFeedbackStore()
-
 export const useInterviewStore = defineStore('interviewsStore', {
+
   state: (): IInterviewsStoreState => ({
     interviews: [],
     selectedFilterResult: '',
@@ -39,6 +47,17 @@ export const useInterviewStore = defineStore('interviewsStore', {
           this.currentInterview.stages.splice(index, 1)
         }
       }
+    },
+    doActiveButton() {
+      const activeButton = document.getElementById('all-button');
+      if (activeButton) {
+        activeButton.classList.add('active');
+      }
+    },
+    async clearFilter() {
+      this.setFilterResult('')
+      await this.getAllInterviews()
+      this.doActiveButton()
     },
     async getAllInterviews(isFilter: boolean = false) {
       const feedbackStore = useFeedbackStore();
@@ -77,7 +96,7 @@ export const useInterviewStore = defineStore('interviewsStore', {
       await updateDoc(docref, this.currentInterview);
     },
     async getInterview(): Promise<void> {
-
+      const feedbackStore = useFeedbackStore()
       console.log('Начало загрузки данных собеседования');
 
       feedbackStore.isGlobalLoading = true;
@@ -130,6 +149,6 @@ export const useInterviewStore = defineStore('interviewsStore', {
 
       // Логирование завершения загрузки
       console.log('Загрузка данных завершена');
-    } // Новый экшн
+    }
   }
 })

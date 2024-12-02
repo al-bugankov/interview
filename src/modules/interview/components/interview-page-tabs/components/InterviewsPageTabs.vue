@@ -15,23 +15,14 @@ const filterInterviewsList = async (filterValue: TResultFilter) => {
   await interviewStore.getAllInterviews(true)
 }
 
-// Метод для сброса фильтра
-const clearFilter = async () => {
-  interviewStore.setFilterResult('') // Очищаем фильтр
-  await interviewStore.getAllInterviews()
-}
-
 onMounted(() => {
-  const activeButton = document.getElementById('all-button');
-  if (activeButton) {
-    activeButton.classList.add('active');
-  }
+interviewStore.doActiveButton()
 });
 </script>
 
 <template>
   <div class="filter-button-container">
-    <button id="all-button" class="filter-button" type="button" @click="clearFilter">Все</button>
+    <button id="all-button" class="filter-button" type="button" @click="interviewStore.clearFilter">Все</button>
     <button id="offer-button" class="filter-button" type="button" @click="filterInterviewsList('Offer')">
       Приглашение
     </button>

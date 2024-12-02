@@ -42,4 +42,5 @@ import LoaderOverlay from '@/modules/overlay/components/LoaderOverlay.vue'
   margin-bottom: 30px;
 }
 
+
 </style>

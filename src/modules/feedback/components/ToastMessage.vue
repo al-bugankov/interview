@@ -19,5 +19,7 @@ watch(toastTrigger, () => {
 </script>
 
 <template>
-  <app-toast />
+  <app-toast  :style="{'inset': 'auto 50% 20px auto', 'transform': 'translateX(50%)',  'width': '300px'}" />
 </template>
+
+

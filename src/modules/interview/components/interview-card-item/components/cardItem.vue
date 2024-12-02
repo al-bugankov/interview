@@ -18,6 +18,8 @@ const userStore = useAuthStore()
 const db = getFirestore()
 
 
+
+
 const formattedVacancyLink = (link: string) => {
   const formattedlink = link.trim() // Убираем лишние пробелы
   // Проверяем, начинается ли ссылка с http или https
@@ -43,7 +45,7 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
     rejectClass: 'p-button-secondary p-button-outlined',
     acceptClass: 'p-button-danger',
     accept: async () => {
-      feedbackStore.isGlobalLoading = true
+     feedbackStore.isGlobalLoading = true
       await deleteDoc(doc(db, `users/${userStore.userId}/interviews`, id))
       await interviewStore.getAllInterviews()
       feedbackStore.isGlobalLoading = false
