@@ -6,6 +6,9 @@ import type { TResultFilter } from '@/modules/interview/types/TResultFilter'
 const interviewStore = useInterviewStore()
 
 const filterInterviewsList = async (filterValue: TResultFilter) => {
+  //// TODO название переменной не соответствует содержимому, лучше назвать ее allInterviewsFilterButton
+  //// ещё мне не понятно, как меняется класс active, на других кнопках фильтра (приглашение, отказ, ожидание), я потестил и он не меняется и они не как не подсвечиваются.
+  //// Только в момент нажатия как псевдокласс :active. Но если нажать в другое место, то подсветка пропадает.
   const activeButton = document.getElementById('all-button')
   if (activeButton) {
     activeButton.classList.remove('active')

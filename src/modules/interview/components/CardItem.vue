@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { deleteDoc, doc, getFirestore } from 'firebase/firestore'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 import { useConfirm } from 'primevue/useconfirm'
@@ -7,8 +7,16 @@ import { useRouter } from 'vue-router'
 import { formatDate } from '@/utyls/formatDate'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
+import type { IInterview } from '@/modules/interview/types/IInterview'
 
-defineProps(['interview', 'id']);
+//// было
+// defineProps(['interview', 'id'])
+
+//// пропсы лучше объявлять немного другим способом, чтобы сразу их типизировать
+//// ещё интересно, что в этом файле не используется пропс id, возможно его можно удалить.
+defineProps<{
+  interview: IInterview
+}>()
 
 const router = useRouter()
 const confirm = useConfirm()
@@ -16,9 +24,7 @@ const interviewStore = useInterviewStore()
 const feedbackStore = useFeedbackStore()
 const db = getFirestore()
 
-
-
-
+//// TODO название функции не соответствует ее функционалу, лучше назвать ее openVacancyLink
 const formattedVacancyLink = (link: string) => {
   const formattedlink = link.trim() // Убираем лишние пробелы
   // Проверяем, начинается ли ссылка с http или https
@@ -27,11 +33,40 @@ const formattedVacancyLink = (link: string) => {
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
+//// TODO я бы назвал функцию goToEditInterview
 const editInterview = (id: string) => {
   router.push({
     name: ERouteNames.INTERVIEW_ID,
     params: { id }
   })
+}
+
+//// было
+// const confirmRemoveInterview = async (id: string): Promise<void> => {
+//   confirm.require({
+//     message: 'Вы хотите удалить собеседование?',
+//     header: 'Удаление собеседования',
+//     icon: 'pi pi-info-circle',
+//     rejectLabel: 'Отмена',
+//     acceptLabel: 'Удалить',
+//     rejectClass: 'p-button-secondary p-button-outlined',
+//     acceptClass: 'p-button-danger',
+//     accept: async () => {
+//       feedbackStore.isGlobalLoading = true
+//       await deleteDoc(doc(db, `users/${userIdFromStorage()}/interviews`, id))
+//       await interviewStore.getAllInterviews()
+//       feedbackStore.isGlobalLoading = false
+//     }
+//   })
+// }
+
+//// было бы хорошо разделить это на 2 функции, одна для открытия диалога, другая для удаления
+
+const deleteInterview = async (id: string): Promise<void> => {
+  feedbackStore.isGlobalLoading = true
+  await deleteDoc(doc(db, `users/${userIdFromStorage()}/interviews`, id))
+  await interviewStore.getAllInterviews()
+  feedbackStore.isGlobalLoading = false
 }
 
 const confirmRemoveInterview = async (id: string): Promise<void> => {
@@ -43,15 +78,9 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
     acceptLabel: 'Удалить',
     rejectClass: 'p-button-secondary p-button-outlined',
     acceptClass: 'p-button-danger',
-    accept: async () => {
-     feedbackStore.isGlobalLoading = true
-      await deleteDoc(doc(db, `users/${userIdFromStorage()}/interviews`, id))
-      await interviewStore.getAllInterviews()
-      feedbackStore.isGlobalLoading = false
-    }
+    accept: async () => await deleteInterview(id)
   })
 }
-
 </script>
 
 <template>
@@ -63,17 +92,15 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
         <span v-if="interview.result === 'inProgress'" class="inProgress">Ожидание</span>
         <div class="card-buttons">
           <button class="edit-button" @click="editInterview(interview.id)">
-            <img
-              src="@/assets/icon/Edit.svg"
-              alt=""
-              width="34" height="34" loading="lazy"
-            />
+            <img alt="" height="34" loading="lazy" src="../../../assets/icon/Edit.svg" width="34" />
           </button>
           <button class="delete-button" @click="confirmRemoveInterview(interview.id)">
             <img
-              src="@/assets/icon/Delete.svg"
               alt="telegram icon"
-              width="34" height="34" loading="lazy"
+              height="34"
+              loading="lazy"
+              src="../../../assets/icon/Delete.svg"
+              width="34"
             />
           </button>
         </div>
@@ -99,24 +126,28 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
       <div class="contacts card-item">
         <div class="item-name item-contact">Контакты</div>
         <div class="item-content contacts-icon">
-              <span v-if="interview.contactTelegram">
-                <a :href="`https://t.me/${interview.contactTelegram}`">
-<img
-src="@/assets/icon/telegram.svg"
-alt="telegram icon"
-width="20" height="20" loading="lazy"
-/>
-                </a>
-              </span>
+          <span v-if="interview.contactTelegram">
+            <a :href="`https://t.me/${interview.contactTelegram}`">
+              <img
+                alt="telegram icon"
+                height="20"
+                loading="lazy"
+                src="../../../assets/icon/telegram.svg"
+                width="20"
+              />
+            </a>
+          </span>
           <span v-if="interview.contactWhatsApp">
-                <a :href="`https://wa.me/${interview.contactWhatsApp}`">
-<img
-  src="@/assets/icon/whatsapp.svg"
-  alt="telegram icon"
-  width="20" height="20" loading="lazy"
-/>
-                </a>
-              </span>
+            <a :href="`https://wa.me/${interview.contactWhatsApp}`">
+              <img
+                alt="telegram icon"
+                height="20"
+                loading="lazy"
+                src="../../../assets/icon/whatsapp.svg"
+                width="20"
+              />
+            </a>
+          </span>
         </div>
       </div>
       <div v-for="(stage, index) in interview.stages" :key="index" class="stages">
@@ -272,5 +303,4 @@ width="20" height="20" loading="lazy"
 .company-name {
   margin-top: 20px;
 }
-
 </style>

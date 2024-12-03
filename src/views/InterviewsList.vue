@@ -1,16 +1,21 @@
 <script lang="ts" setup>
+//// Переименовал файл в InterviewsList.vue вместо PageListInterviews.vue
+//// сначала сущность, потом действие, что это страница и так понятно))
+
 import { onMounted } from 'vue'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 import { ERouteNames } from '@/router/ERouteNames'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import { useRouter } from 'vue-router'
-import InterviewsPageTabs  from '@/modules/interview/components/interview-page-tabs/components/InterviewsPageTabs.vue'
-import CardItem from '@/modules/interview/components/interview-card-item/components/cardItem.vue'
+//// перенес эти файлы в папку components, там нет смысла делать внутри папки. Только если у нас действительно много файлов и они разбиты на подпапки.
+//// Переименовал файлы в CardItem.vue и InterviewsPageFilters.vue вместо cardItem.vue и interviewsPageTabs.vue соответственно.
+//// tabs - это вкладки, то есть контент эти вкладок (например мог быть файл - InviteTab, OfferTab), а у нас там происходит фильтрация содержимого поэтому filters.
+import InterviewsPageFilters from '@/modules/interview/components/InterviewsPageFilters.vue'
+import CardItem from '@/modules/interview/components/CardItem.vue'
 
 const interviewStore = useInterviewStore()
 const feedbackStore = useFeedbackStore()
 const router = useRouter()
-
 
 onMounted(async () => {
   feedbackStore.isGlobalLoading = true
@@ -21,7 +26,6 @@ onMounted(async () => {
 const createInterview = () => {
   router.push({ name: ERouteNames.INTERVIEW_CREATE })
 }
-
 </script>
 
 <template>
@@ -30,7 +34,7 @@ const createInterview = () => {
       width: '270px',
       height: '215px',
       fontFamily: 'var(--manrope-medium)',
-      fontSize: '14px',
+      fontSize: '14px'
     }"
   />
 
@@ -41,14 +45,16 @@ const createInterview = () => {
       </div>
       <button class="add-button" type="button" @click="createInterview">
         <img
-        src="@/assets/icon/Add.svg"
-        alt="add interview icon"
-        width="34" height="34" loading="lazy"
+          alt="add interview icon"
+          height="34"
+          loading="lazy"
+          src="@/assets/icon/Add.svg"
+          width="34"
         />
       </button>
     </div>
 
-    <interviews-page-tabs />
+    <interviews-page-filters />
 
     <app-message v-if="!interviewStore.interviews.length" class="empty-list" severity="info">
       Нет добавленных собеседований
@@ -65,7 +71,6 @@ const createInterview = () => {
 </template>
 
 <style scoped>
-
 .main-content {
   height: auto;
 }

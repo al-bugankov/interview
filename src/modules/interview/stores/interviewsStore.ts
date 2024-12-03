@@ -95,7 +95,7 @@ export const useInterviewStore = defineStore('interviewsStore', {
     },
     //// это плохая практика, засовывать в стор работу с DOM элементами, лучше это делать в компоненте
     doActiveButton() {
-      //// название переменной не соответствует содержимому, лучше назвать ее allInterviewsFilterButton
+      //// TODO название переменной не соответствует содержимому, лучше назвать ее allInterviewsFilterButton
       const activeButton = document.getElementById('all-button')
       if (activeButton) {
         activeButton.classList.add('active')
@@ -128,7 +128,7 @@ export const useInterviewStore = defineStore('interviewsStore', {
           )
         }
 
-        //// я бы все таки назвал эту переменную userInterviewsRawData, так как это ещё сырые данные, которые ты потом обрабатываешь
+        //// TODO я бы все таки назвал эту переменную userInterviewsRawData, так как это ещё сырые данные, которые ты потом обрабатываешь
         const userInterviews = await getDocs(userInterviewsRawData())
         this.interviews = userInterviews.docs.map((doc) => {
           return doc.data() as IInterview
@@ -141,7 +141,7 @@ export const useInterviewStore = defineStore('interviewsStore', {
     },
     async updateInterview() {
       const db = getFirestore()
-      //// что означает эта переменная? Лучше назвать ее interviewDataBaseReference типа это ссылка на интервью в базе данных
+      //// TODO что означает эта переменная? Лучше назвать ее interviewDataBaseReference типа это ссылка на интервью в базе данных
       const docref = doc(db, `users/${userIdFromStorage()}/interviews`, this.interviewId)
       await updateDoc(docref, this.currentInterview)
     },
@@ -149,13 +149,13 @@ export const useInterviewStore = defineStore('interviewsStore', {
       const feedbackStore = useFeedbackStore()
       feedbackStore.isGlobalLoading = true
       const db = getFirestore()
-      //// аналогичный комментарий, что означает эта переменная? Лучше назвать ее interviewDataBaseReference типа это ссылка на интервью в базе данных
+      //// TODO аналогичный комментарий, что означает эта переменная? Лучше назвать ее interviewDataBaseReference типа это ссылка на интервью в базе данных
       const docref = doc(db, `users/${userIdFromStorage()}/interviews`, this.interviewId)
-      //// аналогичный комментарий, что означает эта переменная? Лучше назвать ее interviewDataBaseSnapshot типа это отпечаток=объект интервью в базе данных
+      //// TODO аналогичный комментарий, что означает эта переменная? Лучше назвать ее interviewDataBaseSnapshot типа это отпечаток=объект интервью в базе данных
       const docSnap = await getDoc(docref)
 
       if (docSnap.exists()) {
-        //// что означает эта data? Лучше назвать ее interviewData типа это объект интервью
+        //// TODO что означает эта data? Лучше назвать ее interviewData типа это объект интервью
         const data = docSnap.data() as IInterview
         if (data.stages && data.stages.length) {
           data.stages = data.stages.map((stage: IStage) => {

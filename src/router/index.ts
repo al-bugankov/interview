@@ -41,7 +41,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'list',
         name: ERouteNames.INTERVIEW_LIST,
-        component: () => import('@/views/PageListInterviews.vue')
+        component: () => import('@/views/InterviewsList.vue')
       },
       {
         path: 'statistic',
@@ -65,7 +65,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/:pathMatch(.*)*',
     name: ERouteNames.NOT_FOUND,
-    component: () => import('@/views/PageNotFound.vue') 
+    component: () => import('@/views/PageNotFound.vue')
   }
 ]
 
