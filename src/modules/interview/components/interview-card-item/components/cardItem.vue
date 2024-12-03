@@ -6,7 +6,7 @@ import { ERouteNames } from '@/router/ERouteNames'
 import { useRouter } from 'vue-router'
 import { formatDate } from '@/utyls/formatDate'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
-import { useAuthStore } from '@/modules/auth/stores/authStore'
+import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
 
 defineProps(['interview', 'id']);
 
@@ -14,7 +14,6 @@ const router = useRouter()
 const confirm = useConfirm()
 const interviewStore = useInterviewStore()
 const feedbackStore = useFeedbackStore()
-const userStore = useAuthStore()
 const db = getFirestore()
 
 
@@ -46,7 +45,7 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
     acceptClass: 'p-button-danger',
     accept: async () => {
      feedbackStore.isGlobalLoading = true
-      await deleteDoc(doc(db, `users/${userStore.userId}/interviews`, id))
+      await deleteDoc(doc(db, `users/${userIdFromStorage()}/interviews`, id))
       await interviewStore.getAllInterviews()
       feedbackStore.isGlobalLoading = false
     }
@@ -62,6 +61,22 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
         <span v-if="interview.result === 'Offer'" class="offer">Приглашение</span>
         <span v-if="interview.result === 'Refusal'" class="refusal">Отказ</span>
         <span v-if="interview.result === 'inProgress'" class="inProgress">Ожидание</span>
+        <div class="card-buttons">
+          <button class="edit-button" @click="editInterview(interview.id)">
+            <img
+              src="@/assets/icon/Edit.svg"
+              alt=""
+              width="34" height="34" loading="lazy"
+            />
+          </button>
+          <button class="delete-button" @click="confirmRemoveInterview(interview.id)">
+            <img
+              src="@/assets/icon/Delete.svg"
+              alt="telegram icon"
+              width="34" height="34" loading="lazy"
+            />
+          </button>
+        </div>
       </div>
       <div class="company-name card-item">
         <div class="item-name">Компания</div>
@@ -128,22 +143,6 @@ width="20" height="20" loading="lazy"
         <a @click="formattedVacancyLink(interview.vacancyLink)">Ссылка на вакансию</a>
       </div>
     </div>
-    <div class="card-buttons">
-      <button class="edit-button" @click="editInterview(interview.id)">
-        <img
-        src="@/assets/icon/Edit.svg"
-        alt=""
-        width="34" height="34" loading="lazy"
-        />
-      </button>
-      <button class="delete-button" @click="confirmRemoveInterview(interview.id)">
-        <img
-          src="@/assets/icon/Delete.svg"
-          alt="telegram icon"
-          width="34" height="34" loading="lazy"
-        />
-      </button>
-    </div>
   </div>
 </template>
 
@@ -164,8 +163,12 @@ width="20" height="20" loading="lazy"
 }
 
 .card-content {
-  width: 240px;
-  padding-left: 16px;
+  width: 100%;
+  padding-inline: 16px;
+}
+
+.item-name {
+  width: 100%;
 }
 
 .card-item {
@@ -173,13 +176,18 @@ width="20" height="20" loading="lazy"
   width: 100%;
   margin-bottom: 12px;
   font-family: var(--manrope-medium), sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 15px;
+  justify-content: space-between;
 }
 
 .contacts-icon {
   display: flex;
   justify-content: right;
+}
+
+.contacts-icon span {
+  margin-left: 10px;
 }
 
 .card-item:not(:has(.comments)) {
@@ -189,15 +197,10 @@ width="20" height="20" loading="lazy"
 .item-content {
   font-family: var(--manrope-bold), sans-serif;
   font-size: 12px;
-  width: 64%;
-  margin-left: 5px;
+  width: 70%;
   overflow-wrap: break-word;
   word-wrap: break-word;
   text-align: right;
-}
-
-.item-content span {
-  margin-inline: 6px;
 }
 
 .edit-button,
@@ -205,17 +208,16 @@ width="20" height="20" loading="lazy"
   border: none;
   cursor: pointer;
   background-color: transparent;
-}
-
-.edit-button {
-  margin-left: 6px;
+  margin-left: 10px;
 }
 
 .card-buttons {
-  width: 79px;
   display: flex;
-  align-items: start;
-  margin-right: 24px;
+  justify-content: flex-end;
+}
+
+.card-buttons button {
+  padding: 0;
 }
 
 .card-buttons img {
@@ -224,11 +226,12 @@ width="20" height="20" loading="lazy"
   object-fit: cover;
 }
 
-.card-content,
-.card-buttons {
-  padding-top: 16px;
+.status {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  justify-content: space-between;
 }
-
 
 .status span {
   font-family: var(--manrope-medium), sans-serif;
@@ -254,6 +257,11 @@ width="20" height="20" loading="lazy"
   cursor: pointer;
   line-height: 16px;
   letter-spacing: 0.5px;
+  color: var(--inProgress-color);
+}
+
+.vacancy-link:active {
+  color: white;
 }
 
 .item-contact {
@@ -262,7 +270,7 @@ width="20" height="20" loading="lazy"
 }
 
 .company-name {
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
 </style>

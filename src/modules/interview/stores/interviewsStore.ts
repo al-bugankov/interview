@@ -11,7 +11,6 @@ import {
 } from 'firebase/firestore'
 import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
-import { useAuthStore } from '@/modules/auth/stores/authStore'
 import { doc, updateDoc } from 'firebase/firestore'
 
 import type { IInterview, IStage } from '@/interfaces'
@@ -90,43 +89,22 @@ export const useInterviewStore = defineStore('interviewsStore', {
       }
     },
     async updateInterview() {
-      const userStore = useAuthStore();
       const db = getFirestore();
-      const docref = doc(db, `users/${userStore.userId}/interviews`, this.interviewId);
+      const docref = doc(db, `users/${userIdFromStorage()}/interviews`, this.interviewId);
       await updateDoc(docref, this.currentInterview);
     },
     async getInterview(): Promise<void> {
       const feedbackStore = useFeedbackStore()
-      console.log('Начало загрузки данных собеседования');
-
       feedbackStore.isGlobalLoading = true;
-
-      const userStore = useAuthStore();
       const db = getFirestore();
-      const docref = doc(db, `users/${userStore.userId}/interviews`, this.interviewId);
-
-      // Логирование перед запросом
-      console.log('Запрос данных из документа:', docref.path);
-
+      const docref = doc(db, `users/${userIdFromStorage()}/interviews`, this.interviewId);
       const docSnap = await getDoc(docref);
-
-      // Логирование получения данных
-      console.log('Ответ от Firestore существует?', docSnap.exists());
 
       if (docSnap.exists()) {
         const data = docSnap.data() as IInterview;
-
-        // Логирование полученных данных
-        console.log('Данные собеседования:', data);
-
         if (data.stages && data.stages.length) {
-          // Логирование этапов до их обработки
-          console.log('Этапы до обработки:', data.stages);
-
           data.stages = data.stages.map((stage: IStage) => {
             if (stage.date && stage.date instanceof Timestamp) {
-              // Логирование преобразования даты
-              console.log('Преобразование даты для этапа:', stage);
               return {
                 ...stage,
                 date: stage.date?.toDate()
@@ -134,21 +112,10 @@ export const useInterviewStore = defineStore('interviewsStore', {
             }
             return stage;
           });
-
-          // Логирование этапов после обработки
-          console.log('Этапы после обработки:', data.stages);
         }
-
         this.currentInterview = data;
-
-        // Логирование успешного завершения загрузки
-        console.log('Данные собеседования успешно загружены');
       }
-
       feedbackStore.isGlobalLoading = false;
-
-      // Логирование завершения загрузки
-      console.log('Загрузка данных завершена');
     }
   }
 })

@@ -14,7 +14,9 @@ const checkAuth = async (
 
   if (userIdFromStorage()) {
     onAuthStateChanged(getAuth(), (user) => {
+      console.log('гетАус',getAuth())
       if (user) {
+        console.log(user)
         authStore.isAuth = true
         authStore.userId = user.uid
       }

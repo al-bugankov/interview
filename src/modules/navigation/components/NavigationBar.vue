@@ -20,7 +20,6 @@ const navigationItems = ref([
     path: { name: ERouteNames.INTERVIEW_LIST },
     show: computed((): boolean => !!authStore.userId),
     action: () => {
-      console.log("Action executed: Список собеседований");
       interviewStore.clearFilter()
     },
   },

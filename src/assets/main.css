@@ -193,9 +193,11 @@ svg * {
   --inProgress-lighter: #28C1E5;
   --active-background:  #565656;
   --card-border: #E2E2E2;
+  --button-bkg-dark-theme: #2e2e2e;
 }
 
-button {
+button,
+.vacancy-link {
   -webkit-tap-highlight-color: transparent;
   outline: none;
   touch-action: manipulation;
@@ -209,6 +211,16 @@ a:-webkit-any-link {
 [data-primevue-style-id="toast-style"] {
   :root {
     --p-toast-width:100px
+  }
+}
+
+::v-deep(.p-dialog-title) {
+  color: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::v-deep(.p-dialog-title) {
+    color: red;
   }
 }
 

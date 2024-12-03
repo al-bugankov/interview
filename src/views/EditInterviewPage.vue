@@ -64,7 +64,6 @@ onMounted(async () => {
     :style="{
       width: '270px',
       height: '215px',
-      color: '#000000',
       fontFamily: 'var(--manrope-medium)',
       fontSize: '14px',
       '--p-dialog-title-font-size': '16px',
@@ -307,4 +306,5 @@ onMounted(async () => {
 ::v-deep(.p-datepicker-panel) {
   border-radius: 20px;
 }
+
 </style>

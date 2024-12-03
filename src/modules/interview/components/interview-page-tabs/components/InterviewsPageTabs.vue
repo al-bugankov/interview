@@ -71,4 +71,10 @@ interviewStore.doActiveButton()
   color: white;
   cursor: pointer;
 }
+
+@media (prefers-color-scheme: dark) {
+  .filter-button {
+    background-color: var(--button-bkg-dark-theme);
+  }
+}
 </style>

@@ -10,6 +10,7 @@ import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import { ERouteNames } from '@/router/ERouteNames'
 import router from '@/router'
 
+
 export const useAuthStore = defineStore('authStore', {
   state: (): IAuthStoreState => ({
     isAuth: false,

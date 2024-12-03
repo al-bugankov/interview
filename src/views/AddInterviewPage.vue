@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import { nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/modules/auth/stores/authStore'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
 import type { IInterview } from '@/interfaces'
 import { v4 as uuidv4 } from 'uuid'
 import { ERouteNames } from '@/router/ERouteNames'
-
-const userStore = useAuthStore()
+import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
 const router = useRouter()
 const db = getFirestore()
 const company = ref<string>('')
@@ -27,12 +25,10 @@ const toggleSubmit = () => {
 
   nextTick(() => {
     const invalidFields = document.querySelectorAll('.is-invalid')
-    console.log(invalidFields)
+
 
     if (invalidFields.length === 0) {
       addNewInterview()
-    } else {
-      console.log('Есть инвалиды')
     }
   })
 }
@@ -50,11 +46,12 @@ const addNewInterview = async (): Promise<void> => {
     createdAt: new Date(),
     result: 'inProgress',
     salaryFrom: salaryFrom.value,
-    salaryTo: salaryTo.value
+    salaryTo: salaryTo.value,
+    stages: [],
   }
 
-  if (userStore.userId) {
-    await setDoc(doc(db, `users/${userStore.userId}/interviews`, payload.id), payload).then(() => {
+  if (userIdFromStorage()) {
+    await setDoc(doc(db, `users/${userIdFromStorage()}/interviews`, payload.id), payload).then(() => {
       router.push({ name: ERouteNames.INTERVIEW_LIST })
     })
   }
