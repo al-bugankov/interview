@@ -11,15 +11,18 @@ const router = useRouter()
 const confirm = useConfirm()
 const feedbackStore = useFeedbackStore()
 const interviewStore = useInterviewStore()
-const interviewId = route.params.id as string;
+const interviewId = route.params.id as string
 
+//// TODO лучше перенести эту логику в onMounted, перед тем как получить интервью
 interviewStore.setInterviewId(interviewId as string)
 
 const validateInterview = async (): Promise<void> => {
+  //// TODO все таки это проверка не на какую то пустую дату, а на то, что дата не указана. Лучше назвать переменную hasInterviewStagesWithoutDate
+  const hasEmptyDate = interviewStore.currentInterview?.stages?.some((stage) => !stage.date)
 
-  const hasEmptyDate = interviewStore.currentInterview?.stages?.some((stage) => !stage.date);
-
+  //// не очевидно выходит из функции если пользователь отменит действие, лучше использовать return
   if (hasEmptyDate) {
+    console.log('hasEmptyDate')
     await new Promise<void>((resolve) => {
       confirm.require({
         message: 'Этап без указанной даты не будет сохранен!',
@@ -30,22 +33,32 @@ const validateInterview = async (): Promise<void> => {
         rejectClass: 'p-button-secondary p-button-outlined',
         acceptClass: 'p-button-danger',
         accept: () => {
-          resolve();
+          resolve()
+        },
+        //// вот здесь мы добавляем действие, которое произойдет если пользователь нажмет отмена или закроен диалог. Консоли можно убрать, я добавил чтобы показать что происходит
+        reject: () => {
+          console.log('reject')
+          return
+        },
+        onHide: () => {
+          console.log('onHide')
+          return
         }
-      });
-    });
+      })
+    })
   }
 
-  interviewStore.currentInterview.stages = interviewStore.currentInterview?.stages?.filter(stage => stage.date);
+  interviewStore.currentInterview.stages = interviewStore.currentInterview?.stages?.filter(
+    (stage) => stage.date
+  )
 
-  await interviewStore.updateInterview();
+  await interviewStore.updateInterview()
   await router.push({ name: ERouteNames.INTERVIEW_LIST })
-};
+}
 
 onMounted(async () => {
-  await interviewStore.getInterview();
+  await interviewStore.getInterview()
 })
-
 </script>
 
 <template>
@@ -54,31 +67,60 @@ onMounted(async () => {
       width: '270px',
       height: '215px',
       fontFamily: 'var(--manrope-medium)',
-      fontSize: '14px',
+      fontSize: '14px'
     }"
   />
 
-  <div v-if="interviewStore.currentInterview && !feedbackStore.isGlobalLoading" class="class-interview">
+  <div
+    v-if="interviewStore.currentInterview && !feedbackStore.isGlobalLoading"
+    class="class-interview"
+  >
     <app-card>
-      <template #title>Собеседование в компанию {{ interviewStore.currentInterview.company }}</template>
+      <template #title
+        >Собеседование в компанию {{ interviewStore.currentInterview.company }}
+      </template>
       <template #content>
         <label for="company">Компания</label>
-        <app-input-text id="company" v-model="interviewStore.currentInterview.company" class="input" />
+        <app-input-text
+          id="company"
+          v-model="interviewStore.currentInterview.company"
+          class="input"
+        />
 
         <label for="vacancyLink">Описание Вакансии (ссылка)</label>
-        <app-input-text id="vacancyLink" v-model="interviewStore.currentInterview.vacancyLink" class="input" />
+        <app-input-text
+          id="vacancyLink"
+          v-model="interviewStore.currentInterview.vacancyLink"
+          class="input"
+        />
 
         <label for="hrName">Контакт (имя)</label>
-        <app-input-text id="hrName" v-model="interviewStore.currentInterview.hrName" class="input" />
+        <app-input-text
+          id="hrName"
+          v-model="interviewStore.currentInterview.hrName"
+          class="input"
+        />
 
         <label for="contactTelegram">Telegram username HR</label>
-        <app-input-text id="contactTelegram" v-model="interviewStore.currentInterview.contactTelegram" class="input" />
+        <app-input-text
+          id="contactTelegram"
+          v-model="interviewStore.currentInterview.contactTelegram"
+          class="input"
+        />
 
         <label for="contactWhatsApp">WhatsApp</label>
-        <app-input-text id="contactWhatsApp" v-model="interviewStore.currentInterview.contactWhatsApp" class="input" />
+        <app-input-text
+          id="contactWhatsApp"
+          v-model="interviewStore.currentInterview.contactWhatsApp"
+          class="input"
+        />
 
         <label for="contactPhone">Телефон HR</label>
-        <app-input-text id="contactPhone" v-model="interviewStore.currentInterview.contactPhone" class="input" />
+        <app-input-text
+          id="contactPhone"
+          v-model="interviewStore.currentInterview.contactPhone"
+          class="input"
+        />
 
         <label for="salaryFrom">Зарплатная вилка от</label>
         <app-input-number
@@ -107,7 +149,11 @@ onMounted(async () => {
           @click="interviewStore.addStage"
         />
         <template v-if="interviewStore.currentInterview.stages">
-          <div v-for="(stage, index) in interviewStore.currentInterview.stages" :key="index" class="interview-stage">
+          <div
+            v-for="(stage, index) in interviewStore.currentInterview.stages"
+            :key="index"
+            class="interview-stage"
+          >
             <div class="datepicker-input-container">
               <label :for="`stage-name-${index}`">Название этапа</label>
               <app-input-text
@@ -201,7 +247,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-
 .input {
   width: 100%;
   margin-bottom: 12px;
@@ -292,5 +337,4 @@ onMounted(async () => {
 ::v-deep(.p-datepicker-panel) {
   border-radius: 20px;
 }
-
 </style>

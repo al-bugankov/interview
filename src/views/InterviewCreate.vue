@@ -9,6 +9,8 @@ import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
 
 const router = useRouter()
 const db = getFirestore()
+
+//// TODO для всего этого можно использовать currentInterview из стора, чтобы не плодить так много рефов.
 const company = ref<string>('')
 const vacancyLink = ref<string>('')
 const hrName = ref<string>('')
@@ -21,9 +23,15 @@ const salaryTo = ref<number | null>(null)
 const loading = ref<boolean>(false)
 const isSubmitted = ref(false)
 
+//// TODO название функции не соответствует ее функционалу, лучше назвать ее submitInterview. Toggle подразумевает что мы что-то включаем или выключаем.
 const toggleSubmit = () => {
   isSubmitted.value = true
 
+  //// что такое nextTick? и зачем он здесь нужен?
+  //// TODO если его удалить то ничего не ломается, значит он не нужен. На мой взгляд.
+  //// проверка на валидность полей я бы вынес в отдельную функцию, например validateFields
+  //// а потом вызывал бы ее вот так: const isFormValid = сomputed(()=> validateFields()) и если isFormValid.value === true, то вызывал бы addNewInterview(). Если нет то показывал бы ошибки.
+  //// и соответственно вместо isSubmitted можно использовать isFormValid, а от isSubmitted можно вообще избавиться.
   nextTick(() => {
     const invalidFields = document.querySelectorAll('.is-invalid')
 
@@ -34,7 +42,10 @@ const toggleSubmit = () => {
 }
 
 const addNewInterview = async (): Promise<void> => {
+  //// очень интересно, что у тебя тут включается лоадинг, но не выключается, если что-то пошло не так =)
   loading.value = true
+
+  //// TODO этот payload нам не нужен, так как уже есть в сторе currentInterview, но важно обратить внимание что перед созданием нам нужно в него добавить id и createdAt
   const payload: IInterview = {
     id: uuidv4(),
     company: company.value,
@@ -51,6 +62,9 @@ const addNewInterview = async (): Promise<void> => {
   }
 
   if (userIdFromStorage()) {
+    //// TODO await и then в одном месте это не очень хорошо, лучше использовать один из вариантов.
+    //// то есть сначала await создание, а потом если создание прошло успешно то await router.push
+    //// но здесь нам ещё было бы хорошо для создания интервью сделать экшен в сторе, createInterview
     await setDoc(doc(db, `users/${userIdFromStorage()}/interviews`, payload.id), payload).then(
       () => {
         router.push({ name: ERouteNames.INTERVIEW_LIST })

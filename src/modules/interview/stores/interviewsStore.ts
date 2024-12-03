@@ -22,6 +22,7 @@ export const useInterviewStore = defineStore('interviewsStore', {
   state: (): IInterviewsStoreState => ({
     interviews: [],
     selectedFilterResult: '',
+    //// TODO зачем нам этот interviewId? если у нас уже есть currentInterview.id
     interviewId: '',
     // было
     // currentInterview: {} as IInterview,
