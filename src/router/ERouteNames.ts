@@ -5,5 +5,6 @@ export enum ERouteNames {
   INTERVIEW_LIST = 'interview-list',
   INTERVIEW_CREATE = 'interview-create',
   INTERVIEW_ID = 'interview-id',
-  STATISTIC = 'statistic'
+  STATISTIC = 'statistic',
+  NOT_FOUND = 'not-found',
 }

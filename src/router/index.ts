@@ -3,9 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/modules/auth/stores/authStore'
 import { ERouteNames } from '@/router/ERouteNames'
 import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
-const checkAuth = async (
+const checkAuth = (
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
   next: NavigationGuardNext
@@ -13,18 +12,12 @@ const checkAuth = async (
   const authStore = useAuthStore()
 
   if (userIdFromStorage()) {
-    onAuthStateChanged(getAuth(), (user) => {
-      console.log('гетАус',getAuth())
-      if (user) {
-        console.log(user)
-        authStore.isAuth = true
-        authStore.userId = user.uid
-      }
-    })
-    next()
-    return
+    authStore.getCurrentUser()
+    if (authStore.isUserCheked) {
+      next()
+    }
+    next({ name: ERouteNames.AUTH_LOGIN })
   }
-
   next({ name: ERouteNames.AUTH_LOGIN })
 }
 
@@ -68,6 +61,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/views/AuthLogin.vue')
       }
     ]
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: ERouteNames.NOT_FOUND,
+    component: () => import('@/views/PageNotFound.vue') 
   }
 ]
 

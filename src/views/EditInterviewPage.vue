@@ -15,16 +15,6 @@ const interviewId = route.params.id as string;
 
 interviewStore.setInterviewId(interviewId as string)
 
-const observeStyles = () => {
-  const observer = new MutationObserver(() => {
-    const datePickerPanel = document.querySelector('.p-datepicker-panel') as HTMLElement;
-    if (datePickerPanel) {
-      datePickerPanel.style.setProperty('--p-datepicker-panel-border-radius', '20px')
-    }
-  })
-  observer.observe(document.body, { childList: true, subtree: true })
-}
-
 const validateInterview = async (): Promise<void> => {
 
   const hasEmptyDate = interviewStore.currentInterview?.stages?.some((stage) => !stage.date);
@@ -54,7 +44,6 @@ const validateInterview = async (): Promise<void> => {
 
 onMounted(async () => {
   await interviewStore.getInterview();
-  observeStyles()
 })
 
 </script>
@@ -66,9 +55,6 @@ onMounted(async () => {
       height: '215px',
       fontFamily: 'var(--manrope-medium)',
       fontSize: '14px',
-      '--p-dialog-title-font-size': '16px',
-      '--p-dialog-border-radius': '20px',
-      '--p-button-border-radius': '20px'
     }"
   />
 

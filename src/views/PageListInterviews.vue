@@ -31,9 +31,6 @@ const createInterview = () => {
       height: '215px',
       fontFamily: 'var(--manrope-medium)',
       fontSize: '14px',
-      '--p-dialog-title-font-size': '16px',
-      '--p-dialog-border-radius': '20px',
-      '--p-button-border-radius': '20px'
     }"
   />
 

@@ -194,6 +194,14 @@ svg * {
   --active-background:  #565656;
   --card-border: #E2E2E2;
   --button-bkg-dark-theme: #2e2e2e;
+  --p-inputtext-border-radius: 14px !important;
+  --p-button-primary-border-color: transparent !important;
+  --p-datepicker-panel-border-radius: 20px !important;
+  --p-dialog-title-font-size: 16px !important;
+  --p-dialog-border-radius: 20px !important;
+  --p-button-border-radius: 20px !important;
+  --p-button-danger-background: var(--refusal-color) !important;
+  --p-confirmdialog-icon-color: var(--refusal-color) !important;
 }
 
 button,
