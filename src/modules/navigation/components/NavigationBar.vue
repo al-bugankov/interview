@@ -12,29 +12,27 @@ const navigationItems = ref([
     label: 'Авторизация',
     icon: 'pi pi-user',
     path: { name: ERouteNames.AUTH_LOGIN },
-    show: computed((): boolean => !authStore.userId),
+    show: computed((): boolean => !authStore.userId)
   },
   {
     label: 'Мои собеседования',
     icon: 'pi pi-list',
     path: { name: ERouteNames.INTERVIEW_LIST },
     show: computed((): boolean => !!authStore.userId),
+    // TODO зачем нам очищать фильтр при переходе на страницу собеседований? Если я его удаляю, ничего не меняется
     action: () => {
       interviewStore.clearFilter()
-    },
+    }
   },
   {
     label: 'Статистика',
     icon: 'pi pi-chart-pie',
     path: { name: ERouteNames.STATISTIC },
-    show: computed((): boolean => !!authStore.userId),
+    show: computed((): boolean => !!authStore.userId)
   }
 ])
 
-const visibleNavigationItems = computed(() =>
-  navigationItems.value.filter(item => item.show)
-);
-
+const visibleNavigationItems = computed(() => navigationItems.value.filter((item) => item.show))
 </script>
 
 <template>
@@ -154,13 +152,13 @@ const visibleNavigationItems = computed(() =>
 
 ::v-deep(.p-menubar-item:nth-child(2):hover),
 ::v-deep(.p-menubar-item:nth-child(2):active) {
-   width: 95px;
-   background-color: lightskyblue;
-   border-radius: var(--element-radius);
+  width: 95px;
+  background-color: lightskyblue;
+  border-radius: var(--element-radius);
 }
 
 ::v-deep(.p-menubar-item:nth-child(1):hover),
-::v-deep(.p-menubar-item:nth-child(1):active){
+::v-deep(.p-menubar-item:nth-child(1):active) {
   width: 150px;
   background-color: lightskyblue;
   border-radius: var(--element-radius);
@@ -204,5 +202,4 @@ const visibleNavigationItems = computed(() =>
   outline: none;
   touch-action: manipulation;
 }
-
 </style>
