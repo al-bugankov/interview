@@ -1,4 +1,4 @@
-import type { IInterview } from '@/interfaces'
+import type { IInterview } from '@/modules/interview/types/IInterview'
 
 export interface IInterviewsStoreState {
   interviews: IInterview[]

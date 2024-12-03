@@ -1,8 +1,7 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onMounted } from 'vue'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
-
-import type { TResultFilter } from '@/interfaces'
+import type { TResultFilter } from '@/modules/interview/types/TResultFilter'
 
 const interviewStore = useInterviewStore()
 
@@ -16,14 +15,21 @@ const filterInterviewsList = async (filterValue: TResultFilter) => {
 }
 
 onMounted(() => {
-interviewStore.doActiveButton()
-});
+  interviewStore.doActiveButton()
+})
 </script>
 
 <template>
   <div class="filter-button-container">
-    <button id="all-button" class="filter-button" type="button" @click="interviewStore.clearFilter">Все</button>
-    <button id="offer-button" class="filter-button" type="button" @click="filterInterviewsList('Offer')">
+    <button id="all-button" class="filter-button" type="button" @click="interviewStore.clearFilter">
+      Все
+    </button>
+    <button
+      id="offer-button"
+      class="filter-button"
+      type="button"
+      @click="filterInterviewsList('Offer')"
+    >
       Приглашение
     </button>
     <button

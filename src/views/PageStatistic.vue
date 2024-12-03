@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
-import type { IInterview } from '@/interfaces'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
+import type { IInterview } from '@/modules/interview/types/IInterview'
 
 const interviewsStore = useInterviewStore()
 const chartData = ref()

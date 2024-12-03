@@ -2,10 +2,11 @@
 import { nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { doc, getFirestore, setDoc } from 'firebase/firestore'
-import type { IInterview } from '@/interfaces'
+import type { IInterview } from '@/modules/interview/types/IInterview'
 import { v4 as uuidv4 } from 'uuid'
 import { ERouteNames } from '@/router/ERouteNames'
 import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
+
 const router = useRouter()
 const db = getFirestore()
 const company = ref<string>('')
@@ -25,7 +26,6 @@ const toggleSubmit = () => {
 
   nextTick(() => {
     const invalidFields = document.querySelectorAll('.is-invalid')
-
 
     if (invalidFields.length === 0) {
       addNewInterview()
@@ -47,13 +47,15 @@ const addNewInterview = async (): Promise<void> => {
     result: 'inProgress',
     salaryFrom: salaryFrom.value,
     salaryTo: salaryTo.value,
-    stages: [],
+    stages: []
   }
 
   if (userIdFromStorage()) {
-    await setDoc(doc(db, `users/${userIdFromStorage()}/interviews`, payload.id), payload).then(() => {
-      router.push({ name: ERouteNames.INTERVIEW_LIST })
-    })
+    await setDoc(doc(db, `users/${userIdFromStorage()}/interviews`, payload.id), payload).then(
+      () => {
+        router.push({ name: ERouteNames.INTERVIEW_LIST })
+      }
+    )
   }
 }
 </script>
@@ -111,8 +113,8 @@ const addNewInterview = async (): Promise<void> => {
           :loading="loading"
           class="add-button"
           label="Создать собеседование"
+          style="--p-button-primary-border-color: transparent"
           @click="toggleSubmit"
-          style="--p-button-primary-border-color: transparent;"
         ></app-button>
       </template>
     </app-card>
