@@ -2,7 +2,6 @@
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 
 const feedbackStore = useFeedbackStore()
-// удалил модуль overlay, LoaderOverlay это компонет обратной связи, а не модуль. Поэтому он пусть лежит тут =)
 </script>
 
 <template>

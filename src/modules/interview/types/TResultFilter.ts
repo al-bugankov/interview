@@ -1,1 +1,1 @@
-export type TResultFilter = 'Refusal' | 'Offer' | 'inProgress'
+export type TResultFilter = 'Refusal' | 'Offer' | 'inProgress' | ''

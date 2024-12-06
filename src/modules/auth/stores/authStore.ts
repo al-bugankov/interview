@@ -4,33 +4,29 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   signInWithEmailAndPassword,
-  signOut,
+  signOut
 } from 'firebase/auth'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import { ERouteNames } from '@/router/ERouteNames'
 import router from '@/router'
 
-
-
 export const useAuthStore = defineStore('authStore', {
   state: (): IAuthStoreState => ({
     isAuth: false,
     userId: '',
-    isUserCheked: false,
+    isUserCheked: false
   }),
   getters: {},
   actions: {
-
     getCurrentUser() {
       this.isUserCheked = false
       const user = getAuth().currentUser
-        if (user) {
-          console.log('юзер', user)
-          this.isAuth = true
-          this.userId = user.uid
-          this.isUserCheked = true
-        }
-      },
+      if (user) {
+        this.isAuth = true
+        this.userId = user.uid
+        this.isUserCheked = true
+      }
+    },
 
     async signIn(email: string, password: string) {
       const isSuccessful = true

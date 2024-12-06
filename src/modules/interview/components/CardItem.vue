@@ -1,19 +1,12 @@
 <script lang="ts" setup>
-import { deleteDoc, doc, getFirestore } from 'firebase/firestore'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 import { useConfirm } from 'primevue/useconfirm'
 import { ERouteNames } from '@/router/ERouteNames'
 import { useRouter } from 'vue-router'
 import { formatDate } from '@/utyls/formatDate'
-import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
-import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
+
 import type { IInterview } from '@/modules/interview/types/IInterview'
 
-//// было
-// defineProps(['interview', 'id'])
-
-//// пропсы лучше объявлять немного другим способом, чтобы сразу их типизировать
-//// ещё интересно, что в этом файле не используется пропс id, возможно его можно удалить.
 defineProps<{
   interview: IInterview
 }>()
@@ -21,52 +14,18 @@ defineProps<{
 const router = useRouter()
 const confirm = useConfirm()
 const interviewStore = useInterviewStore()
-const feedbackStore = useFeedbackStore()
-const db = getFirestore()
 
-//// TODO название функции не соответствует ее функционалу, лучше назвать ее openVacancyLink
-const formattedVacancyLink = (link: string) => {
-  const formattedlink = link.trim() // Убираем лишние пробелы
-  // Проверяем, начинается ли ссылка с http или https
+const openVacancyLink = (link: string) => {
+  const formattedlink = link.trim()
   const url = /^https?:\/\//.test(formattedlink) ? formattedlink : `https://${formattedlink}`
-  // Открываем ссылку в новой вкладке
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
-//// TODO я бы назвал функцию goToEditInterview
-const editInterview = (id: string) => {
+const goToEditInterview = (id: string) => {
   router.push({
     name: ERouteNames.INTERVIEW_ID,
     params: { id }
   })
-}
-
-//// было
-// const confirmRemoveInterview = async (id: string): Promise<void> => {
-//   confirm.require({
-//     message: 'Вы хотите удалить собеседование?',
-//     header: 'Удаление собеседования',
-//     icon: 'pi pi-info-circle',
-//     rejectLabel: 'Отмена',
-//     acceptLabel: 'Удалить',
-//     rejectClass: 'p-button-secondary p-button-outlined',
-//     acceptClass: 'p-button-danger',
-//     accept: async () => {
-//       feedbackStore.isGlobalLoading = true
-//       await deleteDoc(doc(db, `users/${userIdFromStorage()}/interviews`, id))
-//       await interviewStore.getAllInterviews()
-//       feedbackStore.isGlobalLoading = false
-//     }
-//   })
-// }
-
-//// было бы хорошо разделить это на 2 функции, одна для открытия диалога, другая для удаления
-
-const deleteInterview = async (id: string): Promise<void> => {
-  feedbackStore.isGlobalLoading = true
-  await deleteDoc(doc(db, `users/${userIdFromStorage()}/interviews`, id))
-  await interviewStore.getAllInterviews()
-  feedbackStore.isGlobalLoading = false
 }
 
 const confirmRemoveInterview = async (id: string): Promise<void> => {
@@ -78,7 +37,7 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
     acceptLabel: 'Удалить',
     rejectClass: 'p-button-secondary p-button-outlined',
     acceptClass: 'p-button-danger',
-    accept: async () => await deleteInterview(id)
+    accept: async () => await interviewStore.deleteInterview(id)
   })
 }
 </script>
@@ -91,7 +50,7 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
         <span v-if="interview.result === 'Refusal'" class="refusal">Отказ</span>
         <span v-if="interview.result === 'inProgress'" class="inProgress">Ожидание</span>
         <div class="card-buttons">
-          <button class="edit-button" @click="editInterview(interview.id)">
+          <button class="edit-button" @click="goToEditInterview(interview.id)">
             <img alt="" height="34" loading="lazy" src="../../../assets/icon/Edit.svg" width="34" />
           </button>
           <button class="delete-button" @click="confirmRemoveInterview(interview.id)">
@@ -171,7 +130,7 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
         </div>
       </div>
       <div class="vacancy-link card-item">
-        <a @click="formattedVacancyLink(interview.vacancyLink)">Ссылка на вакансию</a>
+        <a @click="openVacancyLink(interview.vacancyLink)">Ссылка на вакансию</a>
       </div>
     </div>
   </div>

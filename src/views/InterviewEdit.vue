@@ -13,16 +13,13 @@ const feedbackStore = useFeedbackStore()
 const interviewStore = useInterviewStore()
 const interviewId = route.params.id as string
 
-//// TODO лучше перенести эту логику в onMounted, перед тем как получить интервью
-interviewStore.setInterviewId(interviewId as string)
-
 const validateInterview = async (): Promise<void> => {
-  //// TODO все таки это проверка не на какую то пустую дату, а на то, что дата не указана. Лучше назвать переменную hasInterviewStagesWithoutDate
-  const hasEmptyDate = interviewStore.currentInterview?.stages?.some((stage) => !stage.date)
+  const hasInterviewStagesWithoutDate = interviewStore.currentInterview?.stages?.some(
+    (stage) => !stage.date
+  )
 
   //// не очевидно выходит из функции если пользователь отменит действие, лучше использовать return
-  if (hasEmptyDate) {
-    console.log('hasEmptyDate')
+  if (hasInterviewStagesWithoutDate) {
     await new Promise<void>((resolve) => {
       confirm.require({
         message: 'Этап без указанной даты не будет сохранен!',
@@ -35,13 +32,10 @@ const validateInterview = async (): Promise<void> => {
         accept: () => {
           resolve()
         },
-        //// вот здесь мы добавляем действие, которое произойдет если пользователь нажмет отмена или закроен диалог. Консоли можно убрать, я добавил чтобы показать что происходит
         reject: () => {
-          console.log('reject')
           return
         },
         onHide: () => {
-          console.log('onHide')
           return
         }
       })
@@ -57,6 +51,7 @@ const validateInterview = async (): Promise<void> => {
 }
 
 onMounted(async () => {
+  interviewStore.setInterviewId(interviewId as string)
   await interviewStore.getInterview()
 })
 </script>

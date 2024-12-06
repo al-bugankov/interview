@@ -1,53 +1,64 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 import type { TResultFilter } from '@/modules/interview/types/TResultFilter'
 
 const interviewStore = useInterviewStore()
 
-const filterInterviewsList = async (filterValue: TResultFilter) => {
-  //// TODO название переменной не соответствует содержимому, лучше назвать ее allInterviewsFilterButton
-  //// ещё мне не понятно, как меняется класс active, на других кнопках фильтра (приглашение, отказ, ожидание), я потестил и он не меняется и они не как не подсвечиваются.
-  //// Только в момент нажатия как псевдокласс :active. Но если нажать в другое место, то подсветка пропадает.
-  const activeButton = document.getElementById('all-button')
-  if (activeButton) {
-    activeButton.classList.remove('active')
+const filterBtnHandler = async (filterValue: TResultFilter) => {
+  if (filterValue) {
+    interviewStore.setFilterResult(filterValue)
+    await interviewStore.getAllInterviews(true)
+    return
   }
-  interviewStore.setFilterResult(filterValue) // Используем метод из interviewStore
-  await interviewStore.getAllInterviews(true)
+  interviewStore.clearFilter()
+  await interviewStore.getAllInterviews()
 }
 
 onMounted(() => {
-  interviewStore.doActiveButton()
+  interviewStore.getAllInterviews()
+})
+
+onUnmounted(() => {
+  interviewStore.$reset()
 })
 </script>
 
 <template>
   <div class="filter-button-container">
-    <button id="all-button" class="filter-button" type="button" @click="interviewStore.clearFilter">
+    <button
+      id="all-interview-button"
+      :class="{ active: !interviewStore.selectedFilterResult }"
+      class="filter-button"
+      type="button"
+      @click="filterBtnHandler('')"
+    >
       Все
     </button>
     <button
       id="offer-button"
+      :class="{ active: interviewStore.selectedFilterResult === 'Offer' }"
       class="filter-button"
       type="button"
-      @click="filterInterviewsList('Offer')"
+      @click="filterBtnHandler('Offer')"
     >
       Приглашение
     </button>
     <button
       id="refusal-button"
+      :class="{ active: interviewStore.selectedFilterResult === 'Refusal' }"
       class="filter-button"
       type="button"
-      @click="filterInterviewsList('Refusal')"
+      @click="filterBtnHandler('Refusal')"
     >
       Отказ
     </button>
     <button
       id="inProgress-button"
+      :class="{ active: interviewStore.selectedFilterResult === 'inProgress' }"
       class="filter-button"
       type="button"
-      @click="filterInterviewsList('inProgress')"
+      @click="filterBtnHandler('inProgress')"
     >
       Ожидание
     </button>

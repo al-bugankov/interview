@@ -28,7 +28,7 @@ const setChartData = () => {
   })
 
   return {
-    labels: ['Оффер', 'Отказ', 'В процессе'],
+    labels: ['Приглашение', 'Отказ', 'Ожидание'],
     datasets: [
       {
         data,

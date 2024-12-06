@@ -1,15 +1,9 @@
 <script lang="ts" setup>
-//// Переименовал файл в InterviewsList.vue вместо PageListInterviews.vue
-//// сначала сущность, потом действие, что это страница и так понятно))
-
 import { onMounted } from 'vue'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 import { ERouteNames } from '@/router/ERouteNames'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import { useRouter } from 'vue-router'
-//// перенес эти файлы в папку components, там нет смысла делать внутри папки. Только если у нас действительно много файлов и они разбиты на подпапки.
-//// Переименовал файлы в CardItem.vue и InterviewsPageFilters.vue вместо cardItem.vue и interviewsPageTabs.vue соответственно.
-//// tabs - это вкладки, то есть контент эти вкладок (например мог быть файл - InviteTab, OfferTab), а у нас там происходит фильтрация содержимого поэтому filters.
 import InterviewsPageFilters from '@/modules/interview/components/InterviewsPageFilters.vue'
 import CardItem from '@/modules/interview/components/CardItem.vue'
 

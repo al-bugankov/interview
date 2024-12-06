@@ -1,77 +1,58 @@
 <script lang="ts" setup>
-import { nextTick, ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { doc, getFirestore, setDoc } from 'firebase/firestore'
-import type { IInterview } from '@/modules/interview/types/IInterview'
 import { v4 as uuidv4 } from 'uuid'
 import { ERouteNames } from '@/router/ERouteNames'
 import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
+import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
+import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 
 const router = useRouter()
-const db = getFirestore()
+const interviewStore = useInterviewStore()
+const feedbackStore = useFeedbackStore()
+const isValidateStart = ref<boolean>(false)
 
-//// TODO для всего этого можно использовать currentInterview из стора, чтобы не плодить так много рефов.
-const company = ref<string>('')
-const vacancyLink = ref<string>('')
-const hrName = ref<string>('')
-const contactTelegram = ref<string>('')
-const contactWhatsApp = ref<string>('')
-const contactPhone = ref<string>('')
-const salaryFrom = ref<number | null>(null)
-const salaryTo = ref<number | null>(null)
+const validateFields = () => {
+  isValidateStart.value = true
+  let hasError = false
+  const fields = [
+    { field: 'company', errorClass: 'company-error' },
+    { field: 'vacancyLink', errorClass: 'vacancy-error' },
+    { field: 'hrName', errorClass: 'hr-error' },
+    { field: 'contactTelegram', errorClass: 'telegram-error' },
+    { field: 'contactWhatsApp', errorClass: 'whatsapp-error' }
+  ]
 
-const loading = ref<boolean>(false)
-const isSubmitted = ref(false)
-
-//// TODO название функции не соответствует ее функционалу, лучше назвать ее submitInterview. Toggle подразумевает что мы что-то включаем или выключаем.
-const toggleSubmit = () => {
-  isSubmitted.value = true
-
-  //// что такое nextTick? и зачем он здесь нужен?
-  //// TODO если его удалить то ничего не ломается, значит он не нужен. На мой взгляд.
-  //// проверка на валидность полей я бы вынес в отдельную функцию, например validateFields
-  //// а потом вызывал бы ее вот так: const isFormValid = сomputed(()=> validateFields()) и если isFormValid.value === true, то вызывал бы addNewInterview(). Если нет то показывал бы ошибки.
-  //// и соответственно вместо isSubmitted можно использовать isFormValid, а от isSubmitted можно вообще избавиться.
-  nextTick(() => {
-    const invalidFields = document.querySelectorAll('.is-invalid')
-
-    if (invalidFields.length === 0) {
-      addNewInterview()
+  fields.forEach(({ field, errorClass }) => {
+    const fieldValue =
+      interviewStore.currentInterview[field as keyof typeof interviewStore.currentInterview]
+    const errorContainer = document.querySelector(`.${errorClass}`) as HTMLElement
+    if (!fieldValue && errorContainer) {
+      errorContainer.style.display = 'block'
+      hasError = true
     }
   })
+  if (!hasError) {
+    addNewInterview()
+  }
 }
 
 const addNewInterview = async (): Promise<void> => {
-  //// очень интересно, что у тебя тут включается лоадинг, но не выключается, если что-то пошло не так =)
-  loading.value = true
+  feedbackStore.isGlobalLoading = true
 
-  //// TODO этот payload нам не нужен, так как уже есть в сторе currentInterview, но важно обратить внимание что перед созданием нам нужно в него добавить id и createdAt
-  const payload: IInterview = {
-    id: uuidv4(),
-    company: company.value,
-    vacancyLink: vacancyLink.value,
-    hrName: hrName.value,
-    contactTelegram: contactTelegram.value,
-    contactWhatsApp: contactWhatsApp.value,
-    contactPhone: contactPhone.value,
-    createdAt: new Date(),
-    result: 'inProgress',
-    salaryFrom: salaryFrom.value,
-    salaryTo: salaryTo.value,
-    stages: []
-  }
+  interviewStore.currentInterview.id = uuidv4()
+  interviewStore.currentInterview.createdAt = new Date()
 
   if (userIdFromStorage()) {
-    //// TODO await и then в одном месте это не очень хорошо, лучше использовать один из вариантов.
-    //// то есть сначала await создание, а потом если создание прошло успешно то await router.push
-    //// но здесь нам ещё было бы хорошо для создания интервью сделать экшен в сторе, createInterview
-    await setDoc(doc(db, `users/${userIdFromStorage()}/interviews`, payload.id), payload).then(
-      () => {
-        router.push({ name: ERouteNames.INTERVIEW_LIST })
-      }
-    )
+    await interviewStore.addInterview()
+    await router.push({ name: ERouteNames.INTERVIEW_LIST })
   }
+  feedbackStore.isGlobalLoading = false
 }
+
+onUnmounted(() => {
+  interviewStore.$reset()
+})
 </script>
 
 <template>
@@ -80,55 +61,101 @@ const addNewInterview = async (): Promise<void> => {
       <template #title>Новое собеседование</template>
       <template #content>
         <app-input-text
-          v-model="company"
-          :class="{ 'is-invalid': !company && isSubmitted }"
-          class="input"
-          placeholder="Компания"
+          v-model="interviewStore.currentInterview.company"
+          :class="{
+            invalid: isValidateStart && !interviewStore.currentInterview.company
+          }"
+          class="input company-input"
+          placeholder="Компания *"
         />
-        <p v-if="!company && isSubmitted" class="error">Поле обязательно для заполнения!</p>
+        <p v-if="!interviewStore.currentInterview.company" class="error company-error">
+          Поле обязательно для заполнения!
+        </p>
         <div class="salary-inputs-container">
-          <app-input-number v-model="salaryFrom" class="salary-input" placeholder="ЗП-от" />
-          <app-input-number v-model="salaryTo" class="salary-input" placeholder="ЗП-до" />
+          <app-input-number
+            v-model="interviewStore.currentInterview.salaryFrom"
+            class="salary-input"
+            placeholder="ЗП-от"
+          />
+          <app-input-number
+            v-model="interviewStore.currentInterview.salaryTo"
+            class="salary-input"
+            placeholder="ЗП-до"
+          />
         </div>
         <app-input-text
-          v-model="vacancyLink"
-          :class="{ 'is-invalid': isSubmitted && !vacancyLink }"
-          class="input"
-          placeholder="Ссылка на вакансию"
+          v-model="interviewStore.currentInterview.vacancyLink"
+          :class="{
+            invalid: isValidateStart && !interviewStore.currentInterview.vacancyLink
+          }"
+          class="input vacancy-input"
+          placeholder="Ссылка на вакансию *"
         />
-        <p v-if="!vacancyLink && isSubmitted" class="error">Поле обязательно для заполнения!</p>
+        <p v-if="!interviewStore.currentInterview.vacancyLink" class="error vacancy-error">
+          Поле обязательно для заполнения!
+        </p>
         <app-input-text
-          v-model="hrName"
-          :class="{ 'is-invalid': isSubmitted && !hrName }"
-          class="input"
-          placeholder="Имя"
+          v-model="interviewStore.currentInterview.hrName"
+          :class="{
+            invalid: isValidateStart && !interviewStore.currentInterview.hrName
+          }"
+          class="input hr-input"
+          placeholder="Имя HR *"
         />
-        <p v-if="!hrName && isSubmitted" class="error">Поле обязательно для заполнения!</p>
+        <p v-if="!interviewStore.currentInterview.hrName" class="error hr-error">
+          Поле обязательно для заполнения!
+        </p>
         <app-input-text
-          v-model="contactTelegram"
-          :class="{ 'is-invalid': isSubmitted && !contactTelegram && !contactWhatsApp }"
-          class="input"
-          placeholder="Telegram"
+          v-model="interviewStore.currentInterview.contactTelegram"
+          :class="{
+            invalid:
+              isValidateStart &&
+              !interviewStore.currentInterview.contactTelegram &&
+              !interviewStore.currentInterview.contactWhatsApp
+          }"
+          class="input telegram-input"
+          placeholder="Telegram *"
         />
-        <p v-if="isSubmitted && !contactTelegram && !contactWhatsApp" class="error">
+        <p
+          v-if="
+            !interviewStore.currentInterview.contactTelegram &&
+            !interviewStore.currentInterview.contactWhatsApp
+          "
+          class="error telegram-error"
+        >
           Одно из этих полей обязательно для заполнения!
         </p>
         <app-input-text
-          v-model="contactWhatsApp"
-          :class="{ 'is-invalid': isSubmitted && !contactTelegram && !contactWhatsApp }"
-          class="input"
+          v-model="interviewStore.currentInterview.contactWhatsApp"
+          :class="{
+            invalid:
+              isValidateStart &&
+              !interviewStore.currentInterview.contactTelegram &&
+              !interviewStore.currentInterview.contactWhatsApp
+          }"
+          class="input whatsapp-input"
           placeholder="WhatsApp"
         />
-        <p v-if="isSubmitted && !contactTelegram && !contactWhatsApp" class="error">
+        <p
+          v-if="
+            !interviewStore.currentInterview.contactTelegram &&
+            !interviewStore.currentInterview.contactWhatsApp
+          "
+          class="error whatsapp-error"
+        >
           Одно из этих полей обязательно для заполнения!
         </p>
-        <app-input-text v-model="contactPhone" class="input" placeholder="Телефон" />
+        <app-input-text
+          v-model="interviewStore.currentInterview.contactPhone"
+          class="input"
+          placeholder="Телефон"
+        />
         <app-button
-          :loading="loading"
+          :loading="feedbackStore.isGlobalLoading"
           class="add-button"
           label="Создать собеседование"
           style="--p-button-primary-border-color: transparent"
-          @click="toggleSubmit"
+          @click="validateFields"
         ></app-button>
       </template>
     </app-card>
@@ -187,6 +214,7 @@ const addNewInterview = async (): Promise<void> => {
 }
 
 .error {
+  display: none;
   height: 12px;
   font-family: var(--manrope-bold), sans-serif;
   font-size: 10px;
@@ -196,7 +224,7 @@ const addNewInterview = async (): Promise<void> => {
   padding-left: 8px;
 }
 
-input.is-invalid {
+input.invalid {
   border: 1px solid var(--refusal-color);
 }
 

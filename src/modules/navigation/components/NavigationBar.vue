@@ -2,10 +2,8 @@
 import { useAuthStore } from '@/modules/auth/stores/authStore'
 import { computed, ref } from 'vue'
 import { ERouteNames } from '@/router/ERouteNames'
-import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 
 const authStore = useAuthStore()
-const interviewStore = useInterviewStore()
 
 const navigationItems = ref([
   {
@@ -18,11 +16,7 @@ const navigationItems = ref([
     label: 'Мои собеседования',
     icon: 'pi pi-list',
     path: { name: ERouteNames.INTERVIEW_LIST },
-    show: computed((): boolean => !!authStore.userId),
-    // TODO зачем нам очищать фильтр при переходе на страницу собеседований? Если я его удаляю, ничего не меняется
-    action: () => {
-      interviewStore.clearFilter()
-    }
+    show: computed((): boolean => !!authStore.userId)
   },
   {
     label: 'Статистика',
@@ -40,7 +34,7 @@ const visibleNavigationItems = computed(() => navigationItems.value.filter((item
     <app-menubar :model="visibleNavigationItems" class="menu">
       <template #item="{ item, props }">
         <template v-if="item.show">
-          <router-link :to="item.path" v-bind="props.action" @click="item.action">
+          <router-link :to="item.path" v-bind="props.action">
             <span :class="item.icon" class="p-menuitem-icon" />
             <span> {{ item.label }} </span>
           </router-link>

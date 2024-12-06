@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia'
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
   getFirestore,
   orderBy,
   query,
+  setDoc,
   Timestamp,
   updateDoc,
   where
@@ -22,12 +24,6 @@ export const useInterviewStore = defineStore('interviewsStore', {
   state: (): IInterviewsStoreState => ({
     interviews: [],
     selectedFilterResult: '',
-    //// TODO зачем нам этот interviewId? если у нас уже есть currentInterview.id
-    interviewId: '',
-    // было
-    // currentInterview: {} as IInterview,
-
-    //// разобрал этот объект на отдельные существующие поля
     currentInterview: {
       id: '',
       company: '',
@@ -49,72 +45,36 @@ export const useInterviewStore = defineStore('interviewsStore', {
       this.selectedFilterResult = filterValue
     },
     setInterviewId(id: string) {
-      this.interviewId = id
+      this.currentInterview.id = id
     },
     addStage() {
-      //// было
-      // if (this.currentInterview) {
-      //// надо стараться выходить из функции как можно раньше, если интервью не существует то мы сразу выходим
-      //   if (!this.currentInterview.stages) {
-      //     this.currentInterview.stages = []
-      //   }
-      //   this.currentInterview.stages.push({ name: '', date: '', description: '' })
-      // }
-
       if (!this.currentInterview) {
         return
       }
 
-      //// здесь нам не нужно разбивать на 2 части (создать массив, добавить элемент), мы можем сразу добавить элемент в массив с помощью spread оператора
       this.currentInterview.stages = [
         ...this.currentInterview.stages,
         { name: '', date: '', description: '' }
       ]
     },
     removeStage(index: number) {
-      //// было
-      // if (this.currentInterview) {
-      //   if (this.currentInterview.stages) {
-      //     this.currentInterview.stages.splice(index, 1)
-      //   }
-      // }
-
-      //// надо стараться выходить из функции как можно раньше, если интервью не существует то мы сразу выходим
       if (!this.currentInterview) {
         return
       }
-
-      //// надо стараться выходить из функции как можно раньше, если стейджей 0 то мы сразу выходим
       if (this.currentInterview.stages.length === 0) {
         return
       }
-
       this.currentInterview.stages.splice(index, 1)
-
-      //// можно переписать это через фильтр, но твой вариант тоже подходит
-      //// this.currentInterview.stages.filter(stage, stageIndex) => stageIndex !== index)
     },
-    //// это плохая практика, засовывать в стор работу с DOM элементами, лучше это делать в компоненте
-    doActiveButton() {
-      //// TODO название переменной не соответствует содержимому, лучше назвать ее allInterviewsFilterButton
-      const activeButton = document.getElementById('all-button')
-      if (activeButton) {
-        activeButton.classList.add('active')
-      }
-    },
-    async clearFilter() {
+    clearFilter() {
       this.setFilterResult('')
-
-      //// плохая практика мешать логику. Из названия функции мы видим что она должна очистить фильтр, но внутри она еще и делает запрос на сервер и перекрашивает кнопку
-      await this.getAllInterviews()
-      this.doActiveButton()
     },
     async getAllInterviews(isFilter: boolean = false) {
       const feedbackStore = useFeedbackStore()
       const db = getFirestore()
 
       try {
-        const userInterviewsRawData = () => {
+        const userInterviewsRaw = () => {
           if (isFilter) {
             return query(
               collection(db, `users/${userIdFromStorage()}/interviews`),
@@ -122,16 +82,13 @@ export const useInterviewStore = defineStore('interviewsStore', {
               where('result', '==', this.selectedFilterResult)
             )
           }
-
           return query(
             collection(db, `users/${userIdFromStorage()}/interviews`),
             orderBy('createdAt', 'desc')
           )
         }
-
-        //// TODO я бы все таки назвал эту переменную userInterviewsRawData, так как это ещё сырые данные, которые ты потом обрабатываешь
-        const userInterviews = await getDocs(userInterviewsRawData())
-        this.interviews = userInterviews.docs.map((doc) => {
+        const userInterviewsData = await getDocs(userInterviewsRaw())
+        this.interviews = userInterviewsData.docs.map((doc) => {
           return doc.data() as IInterview
         })
       } catch (error: unknown) {
@@ -142,24 +99,28 @@ export const useInterviewStore = defineStore('interviewsStore', {
     },
     async updateInterview() {
       const db = getFirestore()
-      //// TODO что означает эта переменная? Лучше назвать ее interviewDataBaseReference типа это ссылка на интервью в базе данных
-      const docref = doc(db, `users/${userIdFromStorage()}/interviews`, this.interviewId)
-      await updateDoc(docref, this.currentInterview)
+      const interviewDataBaseReference = doc(
+        db,
+        `users/${userIdFromStorage()}/interviews`,
+        this.currentInterview.id
+      )
+      await updateDoc(interviewDataBaseReference, this.currentInterview)
     },
     async getInterview(): Promise<void> {
       const feedbackStore = useFeedbackStore()
       feedbackStore.isGlobalLoading = true
       const db = getFirestore()
-      //// TODO аналогичный комментарий, что означает эта переменная? Лучше назвать ее interviewDataBaseReference типа это ссылка на интервью в базе данных
-      const docref = doc(db, `users/${userIdFromStorage()}/interviews`, this.interviewId)
-      //// TODO аналогичный комментарий, что означает эта переменная? Лучше назвать ее interviewDataBaseSnapshot типа это отпечаток=объект интервью в базе данных
-      const docSnap = await getDoc(docref)
+      const interviewDataBaseReference = doc(
+        db,
+        `users/${userIdFromStorage()}/interviews`,
+        this.currentInterview.id
+      )
+      const interviewDataBaseSnapshot = await getDoc(interviewDataBaseReference)
 
-      if (docSnap.exists()) {
-        //// TODO что означает эта data? Лучше назвать ее interviewData типа это объект интервью
-        const data = docSnap.data() as IInterview
-        if (data.stages && data.stages.length) {
-          data.stages = data.stages.map((stage: IStage) => {
+      if (interviewDataBaseSnapshot.exists()) {
+        const interviewData = interviewDataBaseSnapshot.data() as IInterview
+        if (interviewData.stages && interviewData.stages.length) {
+          interviewData.stages = interviewData.stages.map((stage: IStage) => {
             if (stage.date && stage.date instanceof Timestamp) {
               return {
                 ...stage,
@@ -169,8 +130,23 @@ export const useInterviewStore = defineStore('interviewsStore', {
             return stage
           })
         }
-        this.currentInterview = data
+        this.currentInterview = interviewData
       }
+      feedbackStore.isGlobalLoading = false
+    },
+    async addInterview(): Promise<void> {
+      const db = getFirestore()
+      await setDoc(
+        doc(db, `users/${userIdFromStorage()}/interviews`, this.currentInterview.id),
+        this.currentInterview
+      )
+    },
+    async deleteInterview(id: string): Promise<void> {
+      const feedbackStore = useFeedbackStore()
+      const db = getFirestore()
+      feedbackStore.isGlobalLoading = true
+      await deleteDoc(doc(db, `users/${userIdFromStorage()}/interviews`, id))
+      await this.getAllInterviews()
       feedbackStore.isGlobalLoading = false
     }
   }
