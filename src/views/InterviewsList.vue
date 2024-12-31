@@ -2,19 +2,15 @@
 import { onMounted } from 'vue'
 import { useInterviewStore } from '@/modules/interview/stores/interviewsStore'
 import { ERouteNames } from '@/router/ERouteNames'
-import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
 import { useRouter } from 'vue-router'
 import InterviewsPageFilters from '@/modules/interview/components/InterviewsPageFilters.vue'
 import CardItem from '@/modules/interview/components/CardItem.vue'
 
 const interviewStore = useInterviewStore()
-const feedbackStore = useFeedbackStore()
 const router = useRouter()
 
 onMounted(async () => {
-  feedbackStore.isGlobalLoading = true
   await interviewStore.getAllInterviews()
-  feedbackStore.isGlobalLoading = false
 })
 
 const createInterview = () => {

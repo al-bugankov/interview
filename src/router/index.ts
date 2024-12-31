@@ -4,7 +4,7 @@ import { useAuthStore } from '@/modules/auth/stores/authStore'
 import { ERouteNames } from '@/router/ERouteNames'
 import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
 
-const checkAuth = (
+const checkAuth = async (
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
   next: NavigationGuardNext
@@ -12,13 +12,13 @@ const checkAuth = (
   const authStore = useAuthStore()
 
   if (userIdFromStorage()) {
-    authStore.getCurrentUser()
+    await authStore.getCurrentUser()
     if (authStore.isUserCheked) {
       next()
     }
-    next({ name: ERouteNames.AUTH_LOGIN })
+    return next({ name: ERouteNames.AUTH_LOGIN })
   }
-  next({ name: ERouteNames.AUTH_LOGIN })
+  return next({ name: ERouteNames.AUTH_LOGIN })
 }
 
 const routes: RouteRecordRaw[] = [

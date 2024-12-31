@@ -62,6 +62,7 @@ const submitForm = async () => {
     />
 
     <app-button
+      :disabled="password.length < 1 || email.length < 1"
       :label="submitButtonText"
       :loading="isBtnLoading"
       class="auth-form__button--submit"
@@ -93,5 +94,13 @@ form {
 .auth-form__button--submit:hover,
 .auth-form__button--submit:active {
   background-color: var(--inProgress-lighter) !important;
+}
+
+::v-deep(.p-button:disabled) {
+  cursor: not-allowed;
+}
+
+::v-deep(.p-button:disabled:hover) {
+  background-color: var(--inProgress-color) !important;
 }
 </style>

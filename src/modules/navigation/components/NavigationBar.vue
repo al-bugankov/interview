@@ -30,11 +30,12 @@ const visibleNavigationItems = computed(() => navigationItems.value.filter((item
 
 onMounted(() => {
   const themeSwitcher = document.getElementById('theme-switcher') as HTMLInputElement | null
-  const rootElement = document.documentElement
+
+  const htmlDocument = document.documentElement
 
   const toggleTheme = () => {
     const newTheme = themeSwitcher?.checked ? 'light' : 'dark'
-    rootElement.setAttribute('data-theme', newTheme)
+    htmlDocument.setAttribute('data-theme', newTheme)
   }
 
   themeSwitcher?.addEventListener('change', toggleTheme)

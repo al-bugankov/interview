@@ -237,6 +237,9 @@ svg * {
     --p-menubar-color: #B3B3B3 !important;
     --p-radiobutton-background: #ffffff !important;
 
+    .p-menubar-item-link {
+        color: var(--secondary-text-color)
+    }
 }
 
 [data-theme='dark'] {
@@ -263,6 +266,13 @@ svg * {
     --bg: hsl(var(--hue), 10%, 30%);
     --fg: hsl(var(--hue), 10%, 90%);
     --p-menubar-item-focus-color: rgb(24, 24, 27) !important;
+    --p-menubar-mobile-button-hover-color: #000000 !important;
+    --p-menubar-mobile-button-color: #B3B3B3 !important;
+    --p-menubar-submenu-background: rgb(24, 24, 27) !important;
+
+    ::v-deep(.p-menubar-item-link) {
+        color: #E0E0E0;
+    }
 
     .p-menubar-item.p-focus > .p-menubar-item-content {
         color: #B3B3B3 !important;

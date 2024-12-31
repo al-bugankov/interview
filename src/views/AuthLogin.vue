@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import AuthFrom from '@/modules/auth/components/AuthFrom.vue'
 import { useAuthStore } from '@/modules/auth/stores/authStore'
-import { ERouteNames } from '@/router/ERouteNames'
-import { useRouter } from 'vue-router'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
+import { useRouter } from 'vue-router'
+import { ERouteNames } from '@/router/ERouteNames'
 
 import type { IUserTelegramType } from '@/modules/auth/types/IUserTelegramType'
 
@@ -45,21 +45,23 @@ const loginOrRigister = async (user: IUserTelegramType) => {
 }
 
 onMounted(() => {
-  if (window.Telegram && window.Telegram.WebApp) {
-    const webApp = window.Telegram.WebApp
-    const initData = webApp.initData
+  nextTick(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      const webApp = window.Telegram.WebApp
+      const initData = webApp.initData
 
-    if (initData) {
-      feedbackStore.isGlobalLoading = true
-      authStore.isAuthTypeTelegram = true
-      const decodedData = decodeURIComponent(initData)
-      const userDataMatch = decodedData.match(/user=({.*?})/)
-      userTelegram.value = userDataMatch ? JSON.parse(userDataMatch[1]) : null
-      if (userTelegram.value) {
-        loginOrRigister(userTelegram.value)
+      if (initData) {
+        feedbackStore.isGlobalLoading = true
+        authStore.isAuthTypeTelegram = true
+        const decodedData = decodeURIComponent(initData)
+        const userDataMatch = decodedData.match(/user=({.*?})/)
+        userTelegram.value = userDataMatch ? JSON.parse(userDataMatch[1]) : null
+        if (userTelegram.value) {
+          loginOrRigister(userTelegram.value)
+        }
       }
     }
-  }
+  })
 })
 </script>
 

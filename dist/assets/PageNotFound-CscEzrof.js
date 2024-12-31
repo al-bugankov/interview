@@ -1,0 +1,1 @@
+import{_ as t,c as n,j as o,a}from"./index-BvhJ-PTi.js";const c={},s={class:"content-container"};function r(_,e){return a(),n("div",s,e[0]||(e[0]=[o("div",{class:"content-container__error-image"},null,-1)]))}const i=t(c,[["render",r],["__scopeId","data-v-db42caff"]]);export{i as default};

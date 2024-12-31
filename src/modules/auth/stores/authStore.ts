@@ -3,6 +3,7 @@ import type { IAuthStoreState } from '@/modules/auth/types/IAuthStoreState'
 import {
   createUserWithEmailAndPassword,
   getAuth,
+  onAuthStateChanged,
   signInWithEmailAndPassword,
   signOut
 } from 'firebase/auth'
@@ -19,14 +20,23 @@ export const useAuthStore = defineStore('authStore', {
   }),
   getters: {},
   actions: {
-    getCurrentUser() {
+    async getCurrentUser(): Promise<void> {
       this.isUserCheked = false
-      const user = getAuth().currentUser
-      if (user) {
-        this.isAuth = true
-        this.userId = user.uid
-        this.isUserCheked = true
-      }
+      const auth = getAuth()
+
+      return new Promise((resolve): void => {
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            this.isAuth = true
+            this.userId = user.uid
+            this.isUserCheked = true
+          } else {
+            this.isAuth = false
+            this.isUserCheked = false
+          }
+          resolve() // Разрешаем промис после выполнения проверки
+        })
+      })
     },
 
     async signIn(email: string, password: string) {
@@ -47,7 +57,6 @@ export const useAuthStore = defineStore('authStore', {
         if (error instanceof Error && !this.isAuthTypeTelegram) {
           feedbackStore.showToast({ type: 'error', title: 'Error', message: error.message })
         }
-
         return !isSuccessful
       }
     },
@@ -79,12 +88,12 @@ export const useAuthStore = defineStore('authStore', {
       await signOut(getAuth())
       this.isAuth = false
       this.userId = ''
-      localStorage.removeItem('userId')
+      sessionStorage.removeItem('userId')
       await router.push({ name: ERouteNames.AUTH_LOGIN })
     },
 
     saveUserIdInStorage() {
-      localStorage.setItem('userId', this.userId)
+      sessionStorage.setItem('userId', this.userId)
     }
   }
 })
