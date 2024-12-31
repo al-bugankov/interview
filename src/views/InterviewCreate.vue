@@ -16,11 +16,11 @@ const validateFields = () => {
   isValidateStart.value = true
   let hasError = false
   const fields = [
-    { field: 'company', errorClass: 'company-error' },
-    { field: 'vacancyLink', errorClass: 'vacancy-error' },
-    { field: 'hrName', errorClass: 'hr-error' },
-    { field: 'contactTelegram', errorClass: 'telegram-error' },
-    { field: 'contactWhatsApp', errorClass: 'whatsapp-error' }
+    { field: 'company', errorClass: 'content-interview__error--company' },
+    { field: 'vacancyLink', errorClass: 'content-interview__error--vacancy' },
+    { field: 'hrName', errorClass: 'content-interview__error--hr' },
+    { field: 'contactTelegram', errorClass: 'content-interview__error--telegram' },
+    { field: 'contactWhatsApp', errorClass: 'content-interview__error--whatsapp' }
   ]
 
   fields.forEach(({ field, errorClass }) => {
@@ -39,7 +39,6 @@ const validateFields = () => {
 
 const addNewInterview = async (): Promise<void> => {
   feedbackStore.isGlobalLoading = true
-
   interviewStore.currentInterview.id = uuidv4()
   interviewStore.currentInterview.createdAt = new Date()
 
@@ -65,21 +64,24 @@ onUnmounted(() => {
           :class="{
             invalid: isValidateStart && !interviewStore.currentInterview.company
           }"
-          class="input company-input"
+          class="input input__company"
           placeholder="Компания *"
         />
-        <p v-if="!interviewStore.currentInterview.company" class="error company-error">
+        <p
+          v-if="!interviewStore.currentInterview.company"
+          class="content-interview__error content-interview__error--company"
+        >
           Поле обязательно для заполнения!
         </p>
-        <div class="salary-inputs-container">
+        <div class="content-interview__salary">
           <app-input-number
             v-model="interviewStore.currentInterview.salaryFrom"
-            class="salary-input"
+            class="content-interview__salary__input"
             placeholder="ЗП-от"
           />
           <app-input-number
             v-model="interviewStore.currentInterview.salaryTo"
-            class="salary-input"
+            class="content-interview__salary__input"
             placeholder="ЗП-до"
           />
         </div>
@@ -88,10 +90,13 @@ onUnmounted(() => {
           :class="{
             invalid: isValidateStart && !interviewStore.currentInterview.vacancyLink
           }"
-          class="input vacancy-input"
+          class="input input__vacancy"
           placeholder="Ссылка на вакансию *"
         />
-        <p v-if="!interviewStore.currentInterview.vacancyLink" class="error vacancy-error">
+        <p
+          v-if="!interviewStore.currentInterview.vacancyLink"
+          class="content-interview__error content-interview__error--vacancy"
+        >
           Поле обязательно для заполнения!
         </p>
         <app-input-text
@@ -99,10 +104,13 @@ onUnmounted(() => {
           :class="{
             invalid: isValidateStart && !interviewStore.currentInterview.hrName
           }"
-          class="input hr-input"
+          class="input input__hr"
           placeholder="Имя HR *"
         />
-        <p v-if="!interviewStore.currentInterview.hrName" class="error hr-error">
+        <p
+          v-if="!interviewStore.currentInterview.hrName"
+          class="content-interview__error content-interview__error--hr"
+        >
           Поле обязательно для заполнения!
         </p>
         <app-input-text
@@ -113,7 +121,7 @@ onUnmounted(() => {
               !interviewStore.currentInterview.contactTelegram &&
               !interviewStore.currentInterview.contactWhatsApp
           }"
-          class="input telegram-input"
+          class="input input__telegram"
           placeholder="Telegram *"
         />
         <p
@@ -121,7 +129,7 @@ onUnmounted(() => {
             !interviewStore.currentInterview.contactTelegram &&
             !interviewStore.currentInterview.contactWhatsApp
           "
-          class="error telegram-error"
+          class="content-interview__error content-interview__error--telegram"
         >
           Одно из этих полей обязательно для заполнения!
         </p>
@@ -133,7 +141,7 @@ onUnmounted(() => {
               !interviewStore.currentInterview.contactTelegram &&
               !interviewStore.currentInterview.contactWhatsApp
           }"
-          class="input whatsapp-input"
+          class="input input__whatsapp"
           placeholder="WhatsApp"
         />
         <p
@@ -141,18 +149,18 @@ onUnmounted(() => {
             !interviewStore.currentInterview.contactTelegram &&
             !interviewStore.currentInterview.contactWhatsApp
           "
-          class="error whatsapp-error"
+          class="content-interview__error content-interview__error--whatsapp"
         >
           Одно из этих полей обязательно для заполнения!
         </p>
         <app-input-text
           v-model="interviewStore.currentInterview.contactPhone"
-          class="input"
+          class="input input__phone"
           placeholder="Телефон"
         />
         <app-button
           :loading="feedbackStore.isGlobalLoading"
-          class="add-button"
+          class="content-interview__add-button"
           label="Создать собеседование"
           style="--p-button-primary-border-color: transparent"
           @click="validateFields"
@@ -176,7 +184,7 @@ onUnmounted(() => {
   width: 49%;
 }
 
-.salary-inputs-container {
+.content-interview__salary {
   display: flex;
   justify-content: space-between;
 }
@@ -201,19 +209,19 @@ onUnmounted(() => {
   padding: 12px;
 }
 
-.add-button {
+.content-interview__add-button {
   width: 100%;
   background-color: var(--inProgress-color);
   border-radius: var(--element-radius);
   font-family: var(--manrope-medium), sans-serif;
 }
 
-.add-button:hover,
-.add-button:active {
+.content-interview__add-button:hover,
+.content-interview__add-button:active {
   background-color: var(--inProgress-lighter) !important;
 }
 
-.error {
+.content-interview__error {
   display: none;
   height: 12px;
   font-family: var(--manrope-bold), sans-serif;

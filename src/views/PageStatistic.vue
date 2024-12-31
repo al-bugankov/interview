@@ -48,25 +48,15 @@ const setChartData = () => {
 }
 
 const setChartOptions = () => {
-  const documentStyle = getComputedStyle(document.documentElement)
-  const textColor = documentStyle.getPropertyValue('--p-text-color')
-
   return {
-    plugins: {
-      legend: {
-        labels: {
-          cutout: '60%',
-          color: textColor
-        }
-      }
-    }
+    plugins: {}
   }
 }
 </script>
 
 <template>
-  <h1>Статистика</h1>
-  <div class="card flex justify-center">
+  <h1 class="statistic">Статистика</h1>
+  <div class="statistic__card">
     <app-chart
       :data="chartData"
       :options="chartOptions"
@@ -75,3 +65,23 @@ const setChartOptions = () => {
     />
   </div>
 </template>
+
+<style scoped>
+.statistic {
+  margin-left: 10px;
+  color: var(--primary-text-color);
+}
+
+.statistic__card {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  justify-content: center;
+}
+
+.statistic,
+.statistic__card {
+  font-family: var(--manrope-bold), sans-serif;
+  font-size: 24px;
+}
+</style>

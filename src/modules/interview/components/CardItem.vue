@@ -44,16 +44,28 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
 
 <template>
   <div class="interview-card">
-    <div class="card-content">
-      <div class="status">
-        <span v-if="interview.result === 'Offer'" class="offer">Приглашение</span>
-        <span v-if="interview.result === 'Refusal'" class="refusal">Отказ</span>
-        <span v-if="interview.result === 'inProgress'" class="inProgress">Ожидание</span>
-        <div class="card-buttons">
-          <button class="edit-button" @click="goToEditInterview(interview.id)">
+    <div class="interview-card__content">
+      <div class="interview-card__status">
+        <span v-if="interview.result === 'Offer'" class="interview-card__status--offer"
+          >Приглашение</span
+        >
+        <span v-if="interview.result === 'Refusal'" class="interview-card__status--refusal"
+          >Отказ</span
+        >
+        <span v-if="interview.result === 'inProgress'" class="interview-card__status--in-progress"
+          >Ожидание</span
+        >
+        <div class="interview-card__buttons">
+          <button
+            class="interview-card__button interview-card__button--edit"
+            @click="goToEditInterview(interview.id)"
+          >
             <img alt="" height="34" loading="lazy" src="../../../assets/icon/Edit.svg" width="34" />
           </button>
-          <button class="delete-button" @click="confirmRemoveInterview(interview.id)">
+          <button
+            class="interview-card__button interview-card__button--delete"
+            @click="confirmRemoveInterview(interview.id)"
+          >
             <img
               alt="telegram icon"
               height="34"
@@ -64,27 +76,27 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
           </button>
         </div>
       </div>
-      <div class="company-name card-item">
-        <div class="item-name">Компания</div>
-        <div class="item-content">{{ interview.company }}</div>
+      <div class="interview-card__item interview-card__item--company">
+        <div class="interview-card__item-name">Компания</div>
+        <div class="interview-card__item-content">{{ interview.company }}</div>
       </div>
-      <div class="salary-range card-item">
-        <div class="item-name">ЗП</div>
-        <div class="item-content">
+      <div class="interview-card__item interview-card__item--salary">
+        <div class="interview-card__item-name">ЗП</div>
+        <div class="interview-card__item-content">
           <span v-if="!interview.salaryFrom && !interview.salaryTo">Не заполнено</span>
           <span v-else>{{ interview.salaryFrom }} - {{ interview.salaryTo }}</span>
         </div>
       </div>
-      <div class="hr-name card-item">
-        <div class="item-name">HR</div>
-        <div class="item-content">
+      <div class="interview-card__item interview-card__item--hr">
+        <div class="interview-card__item-name">HR</div>
+        <div class="interview-card__item-content">
           <span v-if="!interview.hrName">Не заполнено</span>
           <span v-else> {{ interview.hrName }}</span>
         </div>
       </div>
-      <div class="contacts card-item">
-        <div class="item-name item-contact">Контакты</div>
-        <div class="item-content contacts-icon">
+      <div class="contacts interview-card__item">
+        <div class="interview-card__item-name interview-card__item--contacts">Контакты</div>
+        <div class="interview-card__item-content interview-card__item-content-contacts-icon">
           <span v-if="interview.contactTelegram">
             <a :href="`https://t.me/${interview.contactTelegram}`">
               <img
@@ -109,27 +121,29 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
           </span>
         </div>
       </div>
-      <div v-for="(stage, index) in interview.stages" :key="index" class="stages">
-        <div class="card-item">
-          <div class="item-name">Этап</div>
-          <div class="item-content">{{ index + 1 }}</div>
+      <div v-for="(stage, index) in interview.stages" :key="index" class="interview-card__stage">
+        <div class="interview-card__item">
+          <div class="interview-card__item-name">Этап</div>
+          <div class="interview-card__item-content">{{ index + 1 }}</div>
         </div>
-        <div class="card-item">
-          <div class="item-name">Название этапа</div>
-          <div class="item-content">{{ stage.name }}</div>
-          <div v-if="!stage.name" class="item-content">Не заполнено</div>
+        <div class="interview-card__item">
+          <div class="interview-card__item-name">Название этапа</div>
+          <div class="interview-card__item-content">{{ stage.name }}</div>
+          <div v-if="!stage.name" class="interview-card__item-content">Не заполнено</div>
         </div>
-        <div class="card-item">
-          <div class="item-name">Дата</div>
-          <div class="item-content">{{ formatDate(stage.date) }}</div>
+        <div class="interview-card__item">
+          <div class="interview-card__item-name">Дата</div>
+          <div class="interview-card__item-content">{{ formatDate(stage.date) }}</div>
         </div>
-        <div class="card-item">
-          <div class="item-name">Комментарии</div>
-          <div class="item-content comments">{{ stage.description }}</div>
-          <div v-if="!stage.description" class="item-content">Не заполнено</div>
+        <div class="interview-card__item">
+          <div class="interview-card__item-name">Комментарии</div>
+          <div class="interview-card__item-content interview-card__item-content-comments">
+            {{ stage.description }}
+          </div>
+          <div v-if="!stage.description" class="interview-card__item-content">Не заполнено</div>
         </div>
       </div>
-      <div class="vacancy-link card-item">
+      <div class="interview-card__item interview-card__item-content-vacancy">
         <a @click="openVacancyLink(interview.vacancyLink)">Ссылка на вакансию</a>
       </div>
     </div>
@@ -152,16 +166,16 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
   margin-bottom: 24px;
 }
 
-.card-content {
+.interview-card__content {
   width: 100%;
   padding-inline: 16px;
 }
 
-.item-name {
+.interview-card__item-name {
   width: 100%;
 }
 
-.card-item {
+.interview-card__item {
   display: flex;
   width: 100%;
   margin-bottom: 12px;
@@ -169,22 +183,23 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
   font-size: 12px;
   line-height: 15px;
   justify-content: space-between;
+  color: var(--primary-text-color);
 }
 
-.contacts-icon {
+.interview-card__item-content-contacts-icon {
   display: flex;
   justify-content: right;
 }
 
-.contacts-icon span {
+.interview-card__item-content-contacts-icon span {
   margin-left: 10px;
 }
 
-.card-item:not(:has(.comments)) {
+.interview-card__item:not(:has(.interview-card__item-content-comments)) {
   justify-content: space-between;
 }
 
-.item-content {
+.interview-card__item-content {
   font-family: var(--manrope-bold), sans-serif;
   font-size: 12px;
   width: 70%;
@@ -193,55 +208,51 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
   text-align: right;
 }
 
-.edit-button,
-.delete-button {
+.interview-card__button {
   border: none;
   cursor: pointer;
   background-color: transparent;
   margin-left: 10px;
+  padding: 0;
 }
 
-.card-buttons {
+.interview-card__buttons {
   display: flex;
   justify-content: flex-end;
 }
 
-.card-buttons button {
-  padding: 0;
-}
-
-.card-buttons img {
+.interview-card__buttons img {
   width: 34px;
   aspect-ratio: 1;
   object-fit: cover;
 }
 
-.status {
+.interview-card__status {
   display: flex;
   align-items: center;
   margin-top: 10px;
   justify-content: space-between;
 }
 
-.status span {
+.interview-card__status span {
   font-family: var(--manrope-medium), sans-serif;
   font-size: 16px;
 }
 
-.offer {
+.interview-card__status--offer {
   color: var(--offer-color);
 }
 
-.refusal {
+.interview-card__status--refusal {
   color: var(--refusal-color);
 }
 
-.inProgress {
+.interview-card__status--in-progress {
   color: var(--inProgress-color);
   font-size: 14px;
 }
 
-.vacancy-link {
+.interview-card__item-content-vacancy {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -250,16 +261,16 @@ const confirmRemoveInterview = async (id: string): Promise<void> => {
   color: var(--inProgress-color);
 }
 
-.vacancy-link:active {
+.interview-card__item-content-vacancy:active {
   color: white;
 }
 
-.item-contact {
+.interview-card__item--contacts {
   display: flex;
   align-items: center;
 }
 
-.company-name {
+.interview-card__item--company {
   margin-top: 20px;
 }
 </style>

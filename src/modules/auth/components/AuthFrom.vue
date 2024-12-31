@@ -44,17 +44,27 @@ const submitForm = async () => {
 </script>
 
 <template>
-  <form @submit.prevent="submitForm">
-    <label class="email-label" for="email">Email</label>
-    <app-input-text id="email" v-model="email" class="form-input" type="email" />
+  <form v-if="!authStore.isAuthTypeTelegram" class="auth-form" @submit.prevent="submitForm">
+    <label class="auth-form__label auth-form__label--email" for="email">Email</label>
+    <app-input-text
+      id="email"
+      v-model="email"
+      class="auth-form__input auth-form__input--email"
+      type="email"
+    />
 
-    <label class="password-label" for="password">Password</label>
-    <app-input-text id="password" v-model="password" class="form-input" type="password" />
+    <label class="auth-form__label auth-form__label--password" for="password">Password</label>
+    <app-input-text
+      id="password"
+      v-model="password"
+      class="auth-form__input auth-form__input--password"
+      type="password"
+    />
 
     <app-button
       :label="submitButtonText"
       :loading="isBtnLoading"
-      class="submit-button"
+      class="auth-form__button--submit"
       icon="pi pi-user"
       type="submit"
     />
@@ -68,11 +78,11 @@ form {
   font-size: 14px;
 }
 
-.form-input {
+.auth-form__input {
   width: 100%;
 }
 
-.submit-button {
+.auth-form__button--submit {
   width: 100%;
   margin-block: 15px;
   background-color: var(--inProgress-color);
@@ -80,9 +90,8 @@ form {
   font-family: var(--manrope-medium), sans-serif;
 }
 
-.submit-button:hover,
-.submit-button:active {
+.auth-form__button--submit:hover,
+.auth-form__button--submit:active {
   background-color: var(--inProgress-lighter) !important;
 }
-
 </style>

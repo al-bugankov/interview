@@ -66,62 +66,59 @@ onMounted(async () => {
     }"
   />
 
-  <div
-    v-if="interviewStore.currentInterview && !feedbackStore.isGlobalLoading"
-    class="class-interview"
-  >
+  <div v-if="interviewStore.currentInterview && !feedbackStore.isGlobalLoading" class="interview">
     <app-card>
-      <template #title
-        >Собеседование в компанию {{ interviewStore.currentInterview.company }}
+      <template #title>
+        Собеседование в компанию {{ interviewStore.currentInterview.company }}
       </template>
       <template #content>
         <label for="company">Компания</label>
         <app-input-text
           id="company"
           v-model="interviewStore.currentInterview.company"
-          class="input"
+          class="interview__input"
         />
 
         <label for="vacancyLink">Описание Вакансии (ссылка)</label>
         <app-input-text
           id="vacancyLink"
           v-model="interviewStore.currentInterview.vacancyLink"
-          class="input"
+          class="interview__input"
         />
 
         <label for="hrName">Контакт (имя)</label>
         <app-input-text
           id="hrName"
           v-model="interviewStore.currentInterview.hrName"
-          class="input"
+          class="interview__input"
         />
 
         <label for="contactTelegram">Telegram username HR</label>
         <app-input-text
           id="contactTelegram"
           v-model="interviewStore.currentInterview.contactTelegram"
-          class="input"
+          class="interview__input"
         />
 
         <label for="contactWhatsApp">WhatsApp</label>
         <app-input-text
           id="contactWhatsApp"
           v-model="interviewStore.currentInterview.contactWhatsApp"
-          class="input"
+          class="interview__input"
         />
 
         <label for="contactPhone">Телефон HR</label>
         <app-input-text
           id="contactPhone"
           v-model="interviewStore.currentInterview.contactPhone"
-          class="input"
+          class="interview__input"
         />
 
         <label for="salaryFrom">Зарплатная вилка от</label>
         <app-input-number
           id="salaryFrom"
           v-model="interviewStore.currentInterview.salaryFrom"
-          class="input"
+          class="interview__input"
           placeholder="Зарплатная вилка от"
         />
 
@@ -129,7 +126,7 @@ onMounted(async () => {
         <app-input-number
           id="salaryTo"
           v-model="interviewStore.currentInterview.salaryTo"
-          class="input"
+          class="interview__input"
           placeholder="Зарплатная вилка до"
         />
 
@@ -147,22 +144,22 @@ onMounted(async () => {
           <div
             v-for="(stage, index) in interviewStore.currentInterview.stages"
             :key="index"
-            class="interview-stage"
+            class="interview__stage"
           >
-            <div class="datepicker-input-container">
+            <div class="interview__stage__datepicker-container">
               <label :for="`stage-name-${index}`">Название этапа</label>
               <app-input-text
                 :id="`stage-name-${index}`"
                 v-model="stage.name"
-                class="datepicker-input"
+                class="interview__stage-datepicker"
               />
             </div>
-            <div class="datepicker-input-container">
+            <div class="interview__stage__datepicker-container">
               <label :for="`stage-date-${index}`">Дата прохождения этапа</label>
               <app-calendar
                 :id="`stage-date-${index}`"
                 v-model="stage.date"
-                class="datepicker-input"
+                class="interview__stage-datepicker"
                 dateFormat="dd.mm.yy"
                 panelClass="datepicker-custom"
               />
@@ -173,20 +170,22 @@ onMounted(async () => {
                 :id="`stage-description-${index}`"
                 v-model="stage.description"
                 :style="{ borderRadius: 'var(--element-radius)', width: '100%' }"
-                class=""
                 rows="5"
               />
             </div>
             <app-button
-              class="delete-button"
+              class="interview__stage__delete-button"
+              icon="pi pi-times"
               label="Удалить этап"
               severity="danger"
               @click="interviewStore.removeStage(index)"
             />
           </div>
         </template>
-        <div class="radio-container">
-          <div class="radio-item refusal">
+        <div class="interview__stage__radio-container">
+          <div
+            class="interview__stage__radio-container-item interview__stage__radio-container-item--refusal"
+          >
             <app-radio
               id="interviewResult1"
               v-model="interviewStore.currentInterview.result"
@@ -198,9 +197,13 @@ onMounted(async () => {
               name="result"
               value="Refusal"
             />
-            <label class="radio-label" for="interviewResult1">Отказ</label>
+            <label class="interview__stage__radio-container-item-label" for="interviewResult1"
+              >Отказ</label
+            >
           </div>
-          <div class="radio-item offer">
+          <div
+            class="interview__stage__radio-container-item interview__stage__radio-container-item--offer"
+          >
             <app-radio
               id="interviewResult2"
               v-model="interviewStore.currentInterview.result"
@@ -212,9 +215,13 @@ onMounted(async () => {
               name="result"
               value="Offer"
             />
-            <label class="radio-label" for="interviewResult2">Оффер</label>
+            <label class="interview__stage__radio-container-item-label" for="interviewResult2"
+              >Оффер</label
+            >
           </div>
-          <div class="radio-item inProgress">
+          <div
+            class="interview__stage__radio-container-item interview__stage__radio-container-item--in-progress"
+          >
             <app-radio
               id="interviewResult3"
               v-model="interviewStore.currentInterview.result"
@@ -227,11 +234,13 @@ onMounted(async () => {
               name="result"
               value="inProgress"
             />
-            <label class="radio-label" for="interviewResult3">Ожидание</label>
+            <label class="interview__stage__radio-container-item-label" for="interviewResult3"
+              >Ожидание</label
+            >
           </div>
         </div>
         <app-button
-          class="save-button"
+          class="interview__stage__save-button"
           icon="pi pi-save"
           label="Сохранить"
           @click="validateInterview"
@@ -242,25 +251,25 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.input {
+.interview__input {
   width: 100%;
   margin-bottom: 12px;
 }
 
-.interview-stage {
+.interview__stage {
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: var(--element-radius);
   padding: 10px;
   margin-bottom: 10px;
   margin-top: 10px;
 }
 
-.interview-stage .datepicker-input {
+.interview__stage .interview__stage-datepicker {
   width: 100%;
   margin-bottom: 12px;
 }
 
-.class-interview {
+.interview {
   font-family: var(--manrope-medium), sans-serif;
 }
 
@@ -288,18 +297,14 @@ onMounted(async () => {
 }
 
 ::v-deep(.p-button-info),
-.save-button,
-.delete-button {
+.interview__stage__save-button,
+.interview__stage__delete-button {
   width: 100%;
   border-radius: var(--element-radius);
   margin-block: 5px;
 }
 
-.interview-stage {
-  border-radius: var(--element-radius);
-}
-
-.delete-button {
+.interview__stage__delete-button {
   background-color: var(--refusal-color);
 }
 
@@ -307,11 +312,11 @@ onMounted(async () => {
   background-color: var(--inProgress-color);
 }
 
-.save-button {
+.interview__stage__save-button {
   background-color: var(--offer-color);
 }
 
-.radio-container {
+.interview__stage__radio-container {
   display: flex;
   width: 100%;
   margin-block: 10px;
@@ -319,12 +324,12 @@ onMounted(async () => {
   justify-content: space-between;
 }
 
-.radio-item {
+.interview__stage__radio-container-item {
   display: flex;
   align-items: center;
 }
 
-.radio-label {
+.interview__stage__radio-container-item-label {
   margin-left: 5px;
   margin-right: 5px;
 }

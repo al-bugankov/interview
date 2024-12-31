@@ -4,7 +4,8 @@
 *,
 ::before,
 ::after {
-  box-sizing: border-box;
+    box-sizing: border-box;
+    margin-left: 1px;
 }
 
 /**
@@ -12,7 +13,7 @@
   у которых есть атрибут class
  */
 :where(ul, ol):where([class]) {
-  padding-left: 0;
+    padding-left: 0;
 }
 
 /**
@@ -21,7 +22,7 @@
  */
 body,
 :where(blockquote, figure):where([class]) {
-  margin: 0;
+    margin: 0;
 }
 
 /**
@@ -40,17 +41,17 @@ body,
   ol,
   dl
 ):where([class]) {
-  margin-block: 0;
+    margin-block: 0;
 }
 
 :where(dd[class]) {
-  margin-left: 0;
+    margin-left: 0;
 }
 
 :where(fieldset[class]) {
-  margin-left: 0;
-  padding: 0;
-  border: none;
+    margin-left: 0;
+    padding: 0;
+    border: none;
 }
 
 /**
@@ -58,11 +59,11 @@ body,
   у которого есть атрибут class
  */
 :where(ul[class]) {
-  list-style: none;
+    list-style: none;
 }
 
 :where(address[class]) {
-  font-style: normal;
+    font-style: normal;
 }
 
 /**
@@ -71,9 +72,9 @@ body,
   чтобы избежать взаимодействие с более сложным селектором
  */
 p {
-  --paragraphMarginBottom: 24px;
+    --paragraphMarginBottom: 24px;
 
-  margin-block: 0;
+    margin-block: 0;
 }
 
 /**
@@ -81,7 +82,7 @@ p {
   который расположен не последним среди своих соседних элементов
  */
 p:where(:not([class]):not(:last-child)) {
-  margin-bottom: var(--paragraphMarginBottom);
+    margin-bottom: var(--paragraphMarginBottom);
 }
 
 
@@ -90,22 +91,22 @@ p:where(:not([class]):not(:last-child)) {
  */
 img,
 video {
-  display: block;
-  height: auto;
+    display: block;
+    height: auto;
 }
 
 
 html {
-  /**
-    Пригодится в большинстве ситуаций
-    (когда, например, нужно будет "прижать" футер к низу сайта)
-   */
-  height: 100%;
-  /**
-    Убираем скачок интерфейса по горизонтали
-    при появлении / исчезновении скроллбара
-   */
-  scrollbar-gutter: stable;
+    /**
+      Пригодится в большинстве ситуаций
+      (когда, например, нужно будет "прижать" футер к низу сайта)
+     */
+    height: 100%;
+    /**
+      Убираем скачок интерфейса по горизонтали
+      при появлении / исчезновении скроллбара
+     */
+    scrollbar-gutter: stable;
 }
 
 /**
@@ -113,26 +114,26 @@ html {
  */
 html,
 :has(:target) {
-  scroll-behavior: smooth;
+    scroll-behavior: smooth;
 }
 
 body {
-  /**
-    Пригодится в большинстве ситуаций
-    (когда, например, нужно будет "прижать" футер к низу сайта)
-   */
-  min-height: 100%;
-  /**
-    Унифицированный интерлиньяж
-   */
-  line-height: 1.5;
+    /**
+      Пригодится в большинстве ситуаций
+      (когда, например, нужно будет "прижать" футер к низу сайта)
+     */
+    min-height: 100%;
+    /**
+      Унифицированный интерлиньяж
+     */
+    line-height: 1.5;
 }
 
 /**
   Нормализация высоты элемента ссылки при его инспектировании в DevTools
  */
 a:where([class]) {
-  display: inline-flex;
+    display: inline-flex;
 }
 
 /**
@@ -140,7 +141,7 @@ a:where([class]) {
  */
 button,
 label {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 /**
@@ -149,15 +150,15 @@ label {
   Чиним баг задержки смены цвета при взаимодействии с svg-элементами
  */
 svg * {
-  transition-property: fill, stroke;
+    transition-property: fill, stroke;
 }
 
 /**
   Приведение рамок таблиц в классический 'collapse' вид
  */
 :where(table) {
-  border-collapse: collapse;
-  border-color: currentColor;
+    border-collapse: collapse;
+    border-color: currentColor;
 }
 
 /**
@@ -166,79 +167,161 @@ svg * {
  */
 
 @font-face {
-  font-family: 'Manrope-bold';
-  src: url('@/assets/fonts/Manrope.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
+    font-family: 'Manrope-bold';
+    src: url('@/assets/fonts/Manrope.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
-  font-family: 'Manrope-medium';
-  src: url('@/assets/fonts/Manrope.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
+    font-family: 'Manrope-medium';
+    src: url('@/assets/fonts/Manrope.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
 }
 
 :root {
-  --manrope-bold: 'Manrope-bold', sans-serif;
-  --manrope-medium: 'Manrope-medium', sans-serif;
+    --manrope-bold: 'Manrope-bold', sans-serif;
+    --manrope-medium: 'Manrope-medium', sans-serif;
 
-  --element-radius: 20px;
+    --element-radius: 20px;
 
-  --offer-color: #48C95F;
-  --refusal-color: #FF0000;
-  --inProgress-color: #27A6E5;
-  --inProgress-lighter: #28C1E5;
-  --active-background:  #565656;
-  --card-border: #E2E2E2;
-  --button-bkg-dark-theme: #2e2e2e;
-  --p-inputtext-border-radius: 14px !important;
-  --p-button-primary-border-color: transparent !important;
-  --p-datepicker-panel-border-radius: 20px !important;
-  --p-dialog-title-font-size: 16px !important;
-  --p-dialog-border-radius: 20px !important;
-  --p-button-border-radius: 20px !important;
-  --p-button-danger-background: var(--refusal-color) !important;
-  --p-confirmdialog-icon-color: var(--refusal-color) !important;
+    --primary-text-color: #B3B3B3;
+
+    --offer-color: #48C95F;
+    --refusal-color: #FF0000;
+    --inProgress-color: #27A6E5;
+    --inProgress-lighter: #28C1E5;
+    --active-background: #565656;
+    --card-border: #E2E2E2;
+    --background-color: rgb(233, 233, 233);
+    --p-inputtext-border-radius: 14px !important;
+    --p-button-primary-border-color: transparent !important;
+    --p-datepicker-panel-border-radius: 20px !important;
+    --p-dialog-title-font-size: 16px !important;
+    --p-dialog-border-radius: 20px !important;
+    --p-button-border-radius: 20px !important;
+    --p-button-danger-background: var(--refusal-color) !important;
+    --p-confirmdialog-icon-color: var(--refusal-color) !important;
+    --p-focus-ring-width: 0 !important;
+    --p-dialog-title-font-weight: 500 !important;
+
+    /*------------*/
+    --hue: 223;
+    --bg: hsl(var(--hue), 10%, 90%);
+    --fg: hsl(var(--hue), 10%, 10%);
+    --primary: hsl(var(--hue), 90%, 55%);
+    --primary-l: hsl(var(--hue), 90%, 65%);
+    --primary-d: hsl(var(--hue), 90%, 45%);
+    --white: hsl(var(--hue), 10%, 100%);
+    --white-d: hsl(var(--hue), 10%, 45%);
+}
+
+[data-theme='light'] {
+    --app-background: white;
+    --p-menubar-background: white !important;
+    --p-menubar-item-color: #000000 !important;
+    --primary-text-color: #000000;
+    --secondary-text-color: #000000;
+    --p-card-background: #ffffff !important;
+    --p-card-color: #000000 !important;
+    --p-inputtext-color: #000000 !important;
+    --p-inputtext-background: #ffffff !important;
+    --p-radiobutton-icon-checked-hover-color: #ffffff !important;
+    --p-radiobutton-icon-checked-color: #ffffff !important;
+    --p-radiobutton-checked-border-color: transparent !important;
+    --p-menubar-item-focus-color: #000000 !important;
+    --p-menubar-submenu-background: #ffffff !important;
+    --p-menubar-color: #B3B3B3 !important;
+    --p-radiobutton-background: #ffffff !important;
+
+}
+
+[data-theme='dark'] {
+    --app-background: rgb(33, 33, 33);
+    --secondary-text-color: #000000;
+    --p-menubar-background: rgb(24, 24, 27) !important;
+    --p-menubar-item-color: #B3B3B3 !important;
+    --p-menubar-color: #B3B3B3 !important;
+    --p-card-background: rgb(24, 24, 27) !important;
+    --p-inputtext-background: rgb(24, 24, 27) !important;
+    --p-inputtext-color: #E0E0E0 !important;
+    --p-card-color: #E0E0E0 !important;
+    --p-radiobutton-background: rgb(24, 24, 27) !important;
+    --p-radiobutton-border-color: #cbd5e1 !important;
+    --p-radiobutton-checked-focus-border-color: rgb(24, 24, 27) !important;
+    --p-radiobutton-checked-hover-border-color: rgb(24, 24, 27) !important;
+    --p-radiobutton-icon-checked-hover-color: transparent !important;
+    --p-radiobutton-icon-checked-color: transparent !important;
+    --p-textarea-background: rgb(24, 24, 27) !important;
+    --p-textarea-color: #E0E0E0 !important;
+    --p-dialog-background: rgb(24, 24, 27) !important;
+    --p-dialog-color: #E0E0E0 !important;
+    --p-button-outlined-secondary-color: #E0E0E0 !important;
+    --bg: hsl(var(--hue), 10%, 30%);
+    --fg: hsl(var(--hue), 10%, 90%);
+    --p-menubar-item-focus-color: rgb(24, 24, 27) !important;
+
+    .p-menubar-item.p-focus > .p-menubar-item-content {
+        color: #B3B3B3 !important;
+    }
+
+    .p-menubar-item.p-focus:hover > .p-menubar-item-content {
+        color: rgb(24, 24, 27) !important;
+    }
+}
+
+.p-radiobutton-checked .p-radiobutton-box {
+    border: none;
+}
+
+#app,
+body {
+    background-color: var(--app-background);
+    transition-duration: 0.4s;
+}
+
+label {
+    color: var(--primary-text-color);
 }
 
 button,
-.vacancy-link {
-  -webkit-tap-highlight-color: transparent;
-  outline: none;
-  touch-action: manipulation;
+.interview-card__item-content-vacancy,
+.switch {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    touch-action: manipulation;
 }
 
 
 a:-webkit-any-link {
-  -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent;
 }
 
 [data-primevue-style-id="toast-style"] {
-  :root {
-    --p-toast-width:100px
-  }
+    :root {
+        --p-toast-width: 100px
+    }
 }
 
 ::v-deep(.p-dialog-title) {
-  color: white;
+    color: white;
 }
 
-@media (prefers-color-scheme: dark) {
-  ::v-deep(.p-dialog-title) {
-    color: red;
-  }
+.Wrl63uWL {
+    display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  ::before,
-  ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+    *,
+    ::before,
+    ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }
+

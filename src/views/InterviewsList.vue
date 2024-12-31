@@ -32,12 +32,12 @@ const createInterview = () => {
     }"
   />
 
-  <div class="main-content">
-    <div class="header-container">
-      <div class="header-text">
+  <div class="interview-list">
+    <div class="interview-list__header">
+      <div class="interview-list__header-text">
         <span>Мои собеседования</span>
       </div>
-      <button class="add-button" type="button" @click="createInterview">
+      <button class="interview-list__header-add-button" type="button" @click="createInterview">
         <img
           alt="add interview icon"
           height="34"
@@ -50,11 +50,15 @@ const createInterview = () => {
 
     <interviews-page-filters />
 
-    <app-message v-if="!interviewStore.interviews.length" class="empty-list" severity="info">
+    <app-message
+      v-if="!interviewStore.interviews.length"
+      class="interview-list--empty"
+      severity="info"
+    >
       Нет добавленных собеседований
     </app-message>
 
-    <div class="content-container">
+    <div class="interview-list__content">
       <card-item
         v-for="(interview, id) in interviewStore.interviews"
         :key="id"
@@ -65,11 +69,11 @@ const createInterview = () => {
 </template>
 
 <style scoped>
-.main-content {
+.interview-list {
   height: auto;
 }
 
-.content-container {
+.interview-list__content {
   width: 100%;
 }
 
@@ -77,8 +81,8 @@ const createInterview = () => {
   margin-inline: 6px;
 }
 
-.header-text,
-.add-button {
+.interview-list__header-text,
+.interview-list__header-add-button {
   font-family: var(--manrope-bold), sans-serif;
   font-size: 16px !important;
   display: flex;
@@ -90,23 +94,18 @@ const createInterview = () => {
   background-color: transparent;
 }
 
-.header-container {
+.interview-list__header-text span {
+  color: var(--primary-text-color);
+}
+
+.interview-list__header {
   display: flex;
   justify-content: space-between;
   height: 34px;
   margin-bottom: 16px;
 }
 
-.status span {
-  font-family: var(--manrope-medium), sans-serif;
-}
-
-.header-text {
-  font-family: var(--manrope-bold), sans-serif;
-  font-size: 16px;
-}
-
-.empty-list {
+.interview-list--empty {
   font-family: var(--manrope-medium), sans-serif;
   font-size: 12px;
   margin-top: 15px;

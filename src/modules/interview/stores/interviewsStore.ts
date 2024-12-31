@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore'
 import { userIdFromStorage } from '@/modules/auth/composables/userIdFromStorage'
 import { useFeedbackStore } from '@/modules/feedback/stores/feedbackStore'
+import { useAuthStore } from '@/modules/auth/stores/authStore'
 
 import type { IInterviewsStoreState } from '@/modules/interview/types/IInterviewsStoreState'
 import type { IInterview } from '@/modules/interview/types/IInterview'
@@ -70,6 +71,7 @@ export const useInterviewStore = defineStore('interviewsStore', {
       this.setFilterResult('')
     },
     async getAllInterviews(isFilter: boolean = false) {
+      const authStore = useAuthStore()
       const feedbackStore = useFeedbackStore()
       const db = getFirestore()
 
@@ -92,7 +94,7 @@ export const useInterviewStore = defineStore('interviewsStore', {
           return doc.data() as IInterview
         })
       } catch (error: unknown) {
-        if (error instanceof Error) {
+        if (error instanceof Error && !authStore.isAuthTypeTelegram) {
           feedbackStore.showToast({ type: 'error', title: 'Error', message: error.message })
         }
       }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useAuthStore } from '@/modules/auth/stores/authStore'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ERouteNames } from '@/router/ERouteNames'
 
 const authStore = useAuthStore()
@@ -13,7 +13,7 @@ const navigationItems = ref([
     show: computed((): boolean => !authStore.userId)
   },
   {
-    label: 'Мои собеседования',
+    label: 'Cобеседования',
     icon: 'pi pi-list',
     path: { name: ERouteNames.INTERVIEW_LIST },
     show: computed((): boolean => !!authStore.userId)
@@ -27,11 +27,23 @@ const navigationItems = ref([
 ])
 
 const visibleNavigationItems = computed(() => navigationItems.value.filter((item) => item.show))
+
+onMounted(() => {
+  const themeSwitcher = document.getElementById('theme-switcher') as HTMLInputElement | null
+  const rootElement = document.documentElement
+
+  const toggleTheme = () => {
+    const newTheme = themeSwitcher?.checked ? 'light' : 'dark'
+    rootElement.setAttribute('data-theme', newTheme)
+  }
+
+  themeSwitcher?.addEventListener('change', toggleTheme)
+})
 </script>
 
 <template>
-  <div class="nav-container">
-    <app-menubar :model="visibleNavigationItems" class="menu">
+  <div class="navigation">
+    <app-menubar :model="visibleNavigationItems" class="navigation__menu">
       <template #item="{ item, props }">
         <template v-if="item.show">
           <router-link :to="item.path" v-bind="props.action">
@@ -41,39 +53,82 @@ const visibleNavigationItems = computed(() => navigationItems.value.filter((item
         </template>
       </template>
       <template #end>
-        <span v-if="authStore.isAuth" class="menu-exit" @click="authStore.logout">
+        <span
+          v-if="authStore.isAuth && !authStore.isAuthTypeTelegram"
+          class="navigation__exit"
+          @click="authStore.logout"
+        >
           <span class="pi pi-sign-out p-menuitem-icon" />
           <span>Выход</span>
         </span>
+        <label class="switch">
+          <input id="theme-switcher" type="checkbox" />
+          <span class="slider"></span>
+        </label>
       </template>
     </app-menubar>
   </div>
 </template>
 
 <style scoped>
-.menu {
+.switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 50px;
+  height: 17px;
+  background-color: var(--background-color);
+  border-radius: 25px;
+  cursor: pointer;
+  transition: background-color 0.4s;
+  margin-left: 5px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  width: 15px;
+  height: 15px;
+  background: url('/moon.svg') no-repeat center/contain;
+  border-radius: 50%;
+  transition:
+    transform 0.4s,
+    background-image 0.4s;
+  margin: 2px;
+}
+
+input:checked + .slider {
+  transform: translateX(31px);
+  background: url('/sun.svg') no-repeat center/contain;
+}
+
+input:checked ~ .switch {
+  background-color: green; /* новый цвет фона для switch */
+}
+
+.navigation__menu {
   width: 100%;
   margin-block: 30px;
   border-radius: var(--element-radius);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.nav-container {
+.navigation {
   width: 100%;
 }
 
-.menu-exit {
+.navigation__exit {
   cursor: pointer;
 }
 
 ::v-deep(.p-menubar-root-list) {
-  width: 80%;
+  width: 63%;
   display: flex;
   gap: 0;
-}
-
-::v-deep(.p-menubar-root-list) {
   border-radius: var(--element-radius);
+  flex-wrap: nowrap;
 }
 
 ::v-deep(.p-menubar-button[aria-expanded='true'] .p-icon) {
@@ -87,6 +142,7 @@ const visibleNavigationItems = computed(() => navigationItems.value.filter((item
 }
 
 ::v-deep(.p-menubar-item-content) {
+  width: 100%;
   font-size: 14px;
   display: flex;
   justify-content: center;
@@ -94,16 +150,12 @@ const visibleNavigationItems = computed(() => navigationItems.value.filter((item
 }
 
 ::v-deep(.p-menubar-end) {
-  width: 68px;
+  width: 42%;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
-}
-
-::v-deep(.p-menubar-end:hover),
-::v-deep(.p-menubar-end:active) {
-  background-color: lightskyblue;
-  border-radius: var(--element-radius);
+  color: var(--primary-text-color);
+  transition-duration: 0.4s;
 }
 
 ::v-deep(.p-menubar-item-content),
@@ -119,6 +171,17 @@ const visibleNavigationItems = computed(() => navigationItems.value.filter((item
 
 ::v-deep(.p-menubar-item-content .p-menubar-item-link) {
   gap: 3px;
+}
+
+::v-deep(
+    .p-menubar-mobile
+      .p-menubar-root-list
+      .p-menubar-item
+      .p-menubar-item-content
+      .p-menubar-item-link
+  ) {
+  width: 100%;
+  justify-content: center;
 }
 
 ::v-deep(.p-menubar-root-list .p-menubar-item .p-menubar-item-content .p-menubar-item-link) {
@@ -137,7 +200,7 @@ const visibleNavigationItems = computed(() => navigationItems.value.filter((item
 }
 
 ::v-deep(.p-menubar-item:nth-child(1)) {
-  width: 150px;
+  width: 115px;
 }
 
 ::v-deep(.p-menubar-item:nth-child(2)) {
@@ -153,7 +216,7 @@ const visibleNavigationItems = computed(() => navigationItems.value.filter((item
 
 ::v-deep(.p-menubar-item:nth-child(1):hover),
 ::v-deep(.p-menubar-item:nth-child(1):active) {
-  width: 150px;
+  width: 115px;
   background-color: lightskyblue;
   border-radius: var(--element-radius);
 }
@@ -195,5 +258,11 @@ const visibleNavigationItems = computed(() => navigationItems.value.filter((item
   -webkit-tap-highlight-color: transparent;
   outline: none;
   touch-action: manipulation;
+}
+
+@media (max-width: 425px) {
+  .switch {
+    margin-left: 15px;
+  }
 }
 </style>

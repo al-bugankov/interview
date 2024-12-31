@@ -14,7 +14,8 @@ export const useAuthStore = defineStore('authStore', {
   state: (): IAuthStoreState => ({
     isAuth: false,
     userId: '',
-    isUserCheked: false
+    isUserCheked: false,
+    isAuthTypeTelegram: false
   }),
   getters: {},
   actions: {
@@ -43,7 +44,7 @@ export const useAuthStore = defineStore('authStore', {
 
         return !isSuccessful
       } catch (error: unknown) {
-        if (error instanceof Error) {
+        if (error instanceof Error && !this.isAuthTypeTelegram) {
           feedbackStore.showToast({ type: 'error', title: 'Error', message: error.message })
         }
 
@@ -66,7 +67,7 @@ export const useAuthStore = defineStore('authStore', {
 
         return !isSuccessful
       } catch (error: unknown) {
-        if (error instanceof Error) {
+        if (error instanceof Error && !this.isAuthTypeTelegram) {
           feedbackStore.showToast({ type: 'error', title: 'Error', message: error.message })
         }
 

@@ -2,7 +2,7 @@
 
 <template>
   <div class="content-container">
-    <div class="error-image"></div>
+    <div class="content-container__error-image"></div>
   </div>
 </template>
 
@@ -15,13 +15,8 @@
   align-items: center;
 }
 
-.error-image {
+.content-container__error-image {
   width: 100%;
   height: 100%;
-}
-
-@media (prefers-color-scheme: dark) {
-  .error-image {
-  }
 }
 </style>

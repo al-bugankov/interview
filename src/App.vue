@@ -9,10 +9,10 @@ import LoaderOverlay from '@/modules/feedback/components/LoaderOverlay.vue'
 
   <div class="app-container">
     <loader-overlay />
-    <div class="header-container">
+    <div class="app-container__header">
       <navigation-bar />
     </div>
-    <div class="content-container">
+    <div class="app-container__content">
       <router-view />
     </div>
   </div>
@@ -27,15 +27,15 @@ import LoaderOverlay from '@/modules/feedback/components/LoaderOverlay.vue'
   position: relative;
 }
 
-.header-container,
-.content-container {
+.app-container__header,
+.app-container__content {
   width: 100%;
   max-width: 375px;
   min-width: 315px;
   padding-inline: 15px;
 }
 
-.content-container {
+.app-container__content {
   margin-bottom: 30px;
 }
 </style>
