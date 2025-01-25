@@ -15,6 +15,10 @@ const filterBtnHandler = async (filterValue: TResultFilter) => {
   await interviewStore.getAllInterviews()
 }
 
+defineExpose({
+  filterBtnHandler
+})
+
 onMounted(() => {
   interviewStore.getAllInterviews()
 })
