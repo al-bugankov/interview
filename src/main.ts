@@ -71,3 +71,5 @@ app.component('app-badge', Badge)
 app.component('app-chart', Chart)
 
 app.mount('#app')
+
+//YourBestVpn_bot API token 7878270583:AAHcKYm0lWBxsZ1MxvxM3uL3jSLanZSBpWM

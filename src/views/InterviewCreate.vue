@@ -207,6 +207,7 @@ onUnmounted(() => {
 
 ::v-deep(.p-card-body) {
   padding: 12px;
+  height: 100%;
 }
 
 .content-interview__add-button {
@@ -239,5 +240,10 @@ input.invalid {
 :root {
   --p-emerald-500: transparent !important;
   --p-button-primary-border-color: transparent !important;
+}
+
+/* Применяем height только для iOS */
+:is(.is-ios) ::v-deep(.p-card-body) {
+  height: var(--app-height);
 }
 </style>

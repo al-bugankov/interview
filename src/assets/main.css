@@ -161,10 +161,6 @@ svg * {
     border-color: currentColor;
 }
 
-/**
-  Удаляем все анимации и переходы для людей,
-  которые предпочитают их не использовать
- */
 
 @font-face {
     font-family: 'Manrope-bold';
@@ -187,9 +183,9 @@ svg * {
     --manrope-medium: 'Manrope-medium', sans-serif;
 
     --element-radius: 20px;
+    --app-height: 100vh;
 
     --primary-text-color: #B3B3B3;
-
     --offer-color: #48C95F;
     --refusal-color: #FF0000;
     --inProgress-color: #27A6E5;

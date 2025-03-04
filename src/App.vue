@@ -2,6 +2,18 @@
 import NavigationBar from '@/modules/navigation/components/NavigationBar.vue'
 import ToastMessage from '@/modules/feedback/components/ToastMessage.vue'
 import LoaderOverlay from '@/modules/feedback/components/LoaderOverlay.vue'
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  document.addEventListener('touchend', (event: TouchEvent) => {
+    const target = event.target as HTMLElement | null
+    if (target && !target.closest('input, textarea')) {
+      document
+        .querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea')
+        .forEach((input) => input.blur())
+    }
+  })
+})
 </script>
 
 <template>
